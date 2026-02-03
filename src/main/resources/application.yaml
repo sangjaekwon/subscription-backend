@@ -15,6 +15,11 @@ spring:
       hibernate:
         format_sql: true
 
+jwt:
+  secret: 0nLd0o2N3k0641cYH495jot8fBZJZDTSaMrPb2X2UYT3twL+K/7Ue/HcMm9G3/Wss1LSZ4xWRL6Qo23JhPgC3w==
+  access-expiration: 1800000 # 30분
+  refresh-expiration: 1209600000 # 14일
+
 logging:
   level:
     org.hibernate.SQL: debug

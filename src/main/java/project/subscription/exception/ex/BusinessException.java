@@ -1,4 +1,4 @@
-package project.subscription.exception;
+package project.subscription.exception.ex;
 
 public abstract class BusinessException extends RuntimeException{
     private final ErrorCode errorCode;

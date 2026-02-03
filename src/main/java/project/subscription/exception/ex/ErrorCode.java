@@ -1,0 +1,22 @@
+package project.subscription.exception.ex;
+
+
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+
+@Getter
+public enum ErrorCode {
+
+    DUPLICATE_USERNAME(400, "아이디가 중복되었습니다."),
+    BAD_LOGIN(401, "아이디 혹은 비밀번호를 다시 확인해 주세요.(로그인 실패)");
+
+
+
+    private final int status;
+    private final String message;
+    ErrorCode(int status, String message) {
+        this.status = status;
+        this.message = message;
+    }
+}

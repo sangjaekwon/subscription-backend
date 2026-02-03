@@ -1,4 +1,4 @@
-package project.subscription.exception;
+package project.subscription.exception.ex;
 
 public class DuplicateUsernameException extends BusinessException {
     public DuplicateUsernameException() {
