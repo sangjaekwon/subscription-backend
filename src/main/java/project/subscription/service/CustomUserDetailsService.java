@@ -19,7 +19,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         User user = userRepository.findByUsername(username);
-        if(user == null) throw new UsernameNotFoundException("유저가 존재하지 않습니다.");
+        if(user == null) throw new RuntimeException(); // UserService에서 커스텀 예외로 처리
 
         return new CustomUserDetails(user.getUsername(), user.getPassword());
     }

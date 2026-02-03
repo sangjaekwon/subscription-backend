@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -23,8 +24,8 @@ public class User extends BaseTimeEntity {
     private String password;
     private String email;
 
-    @OneToMany
-    private ArrayList<Subscription> subscriptionList = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Subscription> subscriptionList = new ArrayList<>();
 
     public User(String username, String password) {
         this.username = username;

@@ -27,6 +27,7 @@ public class Subscription extends BaseTimeEntity{
     private String alarmType;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
 
