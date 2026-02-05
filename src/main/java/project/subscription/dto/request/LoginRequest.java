@@ -1,4 +1,4 @@
-package project.subscription.dto;
+package project.subscription.dto.request;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;

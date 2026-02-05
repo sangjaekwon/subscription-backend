@@ -20,15 +20,35 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_id")
     private Long id;
 
+    @Column(unique = true) // OAuth2
+    private String userKey;
+    private String nickname;
+    private String email;
+
+    @Column(unique = true)
     private String username;
     private String password;
-    private String email;
+
+    private String role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Subscription> subscriptionList = new ArrayList<>();
 
-    public User(String username, String password) {
+    public User(String username, String password, String role) {
         this.username = username;
         this.password = password;
+        this.role = role;
+    }
+
+    public User(String userKey, String nickname, String email, String role) {
+        this.userKey = userKey;
+        this.nickname = nickname;
+        this.email = email;
+        this.role = role;
+    }
+
+    public void updateProfile(String email, String nickname) {
+        this.email = email;
+        this.nickname = nickname;
     }
 }

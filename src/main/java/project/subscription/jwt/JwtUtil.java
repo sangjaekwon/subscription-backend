@@ -21,6 +21,7 @@ public class JwtUtil {
 
     @Value("${jwt.access-expiration}")
     private long accessExpirationMs;
+    @Value("${jwt.refresh-expiration}")
     private long refreshExpirationMs;
 
     public JwtUtil(@Value("${jwt.secret}") String secret) {
@@ -28,12 +29,13 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(key);
     }
 
-    public String createToken(String username) {
+    public String createToken(String username, String type) {
         return Jwts.builder()
                 .claim("sub", username)
                 .claim("roles", List.of("ROLE_USER"))
+                .claim("type", type)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + accessExpirationMs))
+                .expiration(new Date(System.currentTimeMillis() + (type.equals("access") ? accessExpirationMs : refreshExpirationMs)))
                 .signWith(secretKey)
                 .compact();
     }
@@ -42,8 +44,12 @@ public class JwtUtil {
         parseClaim(token);
     }
 
-    public String getUsername(String token) throws InvalidKeyException {
+    public String getUsername(String token) {
         return parseClaim(token).getSubject();
+    }
+
+    public String getType(String token) {
+        return parseClaim(token).get("type").toString();
     }
 
     private Claims parseClaim(String token) {
