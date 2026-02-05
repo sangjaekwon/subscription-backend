@@ -31,7 +31,7 @@ dependencies {
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.0'
     //개발 db
     runtimeOnly 'com.mysql:mysql-connector-j'
-    //테스트 db
+    //테스트용 인메모리 db
     runtimeOnly 'com.h2database:h2'
     //querydsl
     implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
@@ -45,6 +45,12 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
+
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'com.fasterxml.jackson.core:jackson-databind' // 객체 저장시 json 직렬화
+    testImplementation 'it.ozimov:embedded-redis:0.7.2' // 테스트용 임베디드 redis
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
