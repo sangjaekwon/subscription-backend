@@ -4,20 +4,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import project.subscription.dto.request.JoinRequest;
 import project.subscription.dto.request.LoginRequest;
 import project.subscription.dto.response.LoginResponse;
-import project.subscription.exception.ex.BadLoginException;
+import project.subscription.entity.User;
 import project.subscription.exception.ex.InvalidJwtTokenException;
+import project.subscription.exception.ex.UserNotFoundException;
 import project.subscription.jwt.JwtUtil;
+import project.subscription.repository.UserRepository;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
@@ -32,6 +32,8 @@ class AuthServiceTest {
     private AuthService authService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
 
     @Test
     public void 로그인_정상() throws Exception {
@@ -45,14 +47,15 @@ class AuthServiceTest {
 
         //when
         LoginResponse token = authService.login(loginRequest);
+        User user = userRepository.findByUsername(joinRequest.getUsername()).get();
 
         //then
-        assertThat(redisTemplate.opsForValue().get("refresh:" + loginRequest.getUsername()))
+        assertThat(jwtUtil.getUserId(token.getAccessToken())).isEqualTo(String.valueOf(user.getId()));
+        assertThat(jwtUtil.getTokenType(token.getAccessToken())).isEqualTo("access");
+        assertThat(jwtUtil.getUserId(token.getRefreshToken())).isEqualTo(String.valueOf(user.getId()));
+        assertThat(jwtUtil.getTokenType(token.getRefreshToken())).isEqualTo("refresh");
+        assertThat(redisTemplate.opsForValue().get("refresh:" + user.getId()))
                 .isEqualTo(token.getRefreshToken()); // redis 검증
-        assertThat(jwtUtil.getUsername(token.getAccessToken())).isEqualTo(loginRequest.getUsername());
-        assertThat(jwtUtil.getType(token.getAccessToken())).isEqualTo("access");
-        assertThat(jwtUtil.getUsername(token.getRefreshToken())).isEqualTo(loginRequest.getUsername());
-        assertThat(jwtUtil.getType(token.getRefreshToken())).isEqualTo("refresh");
     }
 
     @Test
@@ -65,8 +68,27 @@ class AuthServiceTest {
 
         //then
         assertThatThrownBy(() -> authService.login(loginRequest))
-                .isInstanceOf(BadLoginException.class);
+                .isInstanceOf(UserNotFoundException.class);
     }
+
+    @Test
+    public void 로그인_예외_비밀번호불일치() throws Exception {
+        //given
+        //회원가입 생략
+        JoinRequest joinRequest = createJoinRequest();
+        userService.join(joinRequest);
+
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setUsername(joinRequest.getUsername());
+
+        //when
+        loginRequest.setPassword("wrong-password");
+
+        //then
+        assertThatThrownBy(() -> authService.login(loginRequest))
+                .isInstanceOf(UserNotFoundException.class);
+    }
+
 
     @Test
     public void 리프레시토큰_재발급_정상() throws Exception {
@@ -80,16 +102,17 @@ class AuthServiceTest {
 
         //when
         LoginResponse token = authService.login(loginRequest);
-        //when
 
         LoginResponse reissueToken = authService.reissue(token.getRefreshToken());
+
         //then
-        assertThat(jwtUtil.getUsername(reissueToken.getAccessToken()))
-                .isEqualTo(jwtUtil.getUsername(token.getAccessToken()));
-        assertThat(jwtUtil.getType(reissueToken.getAccessToken()))
-                .isEqualTo(jwtUtil.getType(token.getAccessToken()));
+        assertThat(jwtUtil.getUserId(reissueToken.getAccessToken()))
+                .isEqualTo(jwtUtil.getUserId(token.getAccessToken()));
+        assertThat(jwtUtil.getTokenType(reissueToken.getAccessToken()))
+                .isEqualTo(jwtUtil.getTokenType(token.getAccessToken()));
 
     }
+
     @Test
     public void 리프레시토큰_재발급_예외_유효하지않은토큰() throws Exception {
         //given
@@ -112,10 +135,13 @@ class AuthServiceTest {
 
         //when
         authService.login(loginRequest);
-        authService.logout(joinRequest.getUsername());
+        User user = userRepository.findByUsername(joinRequest.getUsername()).get();
+
+        authService.logout(String.valueOf(user.getId()));
+
 
         //then
-        assertThat(redisTemplate.opsForValue().get("refresh:" + joinRequest.getUsername()))
+        assertThat(redisTemplate.opsForValue().get("refresh:" + user.getId()))
                 .isNull();
     }
 

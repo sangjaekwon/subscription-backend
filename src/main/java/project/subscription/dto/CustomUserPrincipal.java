@@ -12,11 +12,17 @@ import java.util.Map;
 
 
 public class CustomUserPrincipal implements UserDetails, OAuth2User {
-    private String username;
-    private String password;
-    private SimpleGrantedAuthority role;
+    private final Long userId;
+    private final String username;
+    private final String password;
+    private final SimpleGrantedAuthority role;
 
-    public CustomUserPrincipal(String username, String password, SimpleGrantedAuthority role) {
+    public Long getUserId() {
+        return userId;
+    }
+
+    public CustomUserPrincipal(Long userId, String username, String password, SimpleGrantedAuthority role) {
+        this.userId = userId;
         this.username = username;
         this.password = password;
         this.role = role;

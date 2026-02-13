@@ -3,21 +3,17 @@ package project.subscription.service;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import project.subscription.dto.request.JoinRequest;
-import project.subscription.dto.request.LoginRequest;
-import project.subscription.dto.response.LoginResponse;
 import project.subscription.entity.User;
-import project.subscription.exception.ex.BadLoginException;
 import project.subscription.exception.ex.DuplicateUsernameException;
-import project.subscription.jwt.JwtUtil;
 import project.subscription.repository.UserRepository;
 
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 @SpringBootTest
@@ -38,8 +34,10 @@ class UserServiceTest {
 
         //when
         userService.join(joinRequest);
-        User user = userRepository.findByUsername(joinRequest.getUsername());
+        User user = userRepository.findByUsername(joinRequest.getUsername()).get();
         //then
+
+        assertThat(joinRequest.getPassword()).isNotEqualTo(user.getPassword()); // 회원가입 암호화 확인
         assertThat(joinRequest.getUsername()).isEqualTo(user.getUsername());
         assertThat(encoder.matches("abc123!@#", user.getPassword())).isTrue();
     }

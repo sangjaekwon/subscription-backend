@@ -16,7 +16,8 @@ import java.util.List;
 public class User extends BaseTimeEntity {
 
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 
@@ -31,24 +32,39 @@ public class User extends BaseTimeEntity {
 
     private String role;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Subscription> subscriptionList = new ArrayList<>();
 
-    public User(String username, String password, String role) {
-        this.username = username;
-        this.password = password;
-        this.role = role;
+    public static User createLocalUser(String username, String email, String password, String role) {
+        User user = new User();
+        user.username = username;
+        user.password = password;
+        user.email = email;
+        user.role = role;
+        return user;
     }
 
-    public User(String userKey, String nickname, String email, String role) {
-        this.userKey = userKey;
-        this.nickname = nickname;
-        this.email = email;
-        this.role = role;
+    public static User createOauthUser(String userKey, String nickname, String email, String role) {
+        User user = new User();
+        user.userKey = userKey;
+        user.nickname = nickname;
+        user.email = email;
+        user.role = role;
+        return user;
     }
 
     public void updateProfile(String email, String nickname) {
         this.email = email;
         this.nickname = nickname;
+    }
+
+    public void removeSubscription(Subscription subscription) {
+        this.subscriptionList.remove(subscription);
+        subscription.changeUser(null);
+    }
+
+    public void addSubscription(Subscription subscription) {
+        subscriptionList.add(subscription);
+        subscription.changeUser(this);
     }
 }

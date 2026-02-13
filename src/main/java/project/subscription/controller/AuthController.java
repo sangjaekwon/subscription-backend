@@ -25,7 +25,7 @@ import project.subscription.service.AuthService;
 
 import java.time.Duration;
 
-@Tag(name= "Auth API", description = "로그인, 로그아웃, 토큰 재발급 API")
+@Tag(name = "Auth API", description = "로그인, 로그아웃, 토큰 재발급 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -35,7 +35,7 @@ public class AuthController {
 
     @Operation(summary = "로그인 API")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "로그인 성공, JWT 토큰 발급"),
+            @ApiResponse(responseCode = "200", description = "로그인 성공, JWT 토큰 발급, Refresh토큰은 쿠키에 등록하므로 credential 설정 필수"),
             @ApiResponse(responseCode = "401", description = "로그인 실패"),
     })
     @PostMapping("/login")
@@ -47,6 +47,7 @@ public class AuthController {
                         .httpOnly(true)
                         .secure(true)
                         .sameSite("Strict")
+                        .path("/")
                         .maxAge(Duration.ofDays(14))
                         .build().toString()
         );
@@ -64,12 +65,16 @@ public class AuthController {
     public ResponseEntity<CommonApiResponse<?>> reissue(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         String token = null;
+        if (cookies == null)
+            return ResponseEntity.badRequest().body(CommonApiResponse.error("Refresh 토큰이 없습니다. 다시 로그인 해 주세요."));
+
         for (Cookie cookie : cookies) {
-            if(cookie.getName().equals("refresh")) {
+            if (cookie.getName().equals("refresh")) {
                 token = cookie.getValue();
             }
         }
-        if(token == null) return ResponseEntity.badRequest().body(CommonApiResponse.error("Refresh 토큰이 없습니다. 다시 로그인 해 주세요."));
+        if (token == null)
+            return ResponseEntity.badRequest().body(CommonApiResponse.error("Refresh 토큰이 없습니다. 다시 로그인 해 주세요."));
 
         LoginResponse reissue = authService.reissue(token);
 
@@ -78,6 +83,7 @@ public class AuthController {
                         .httpOnly(true)
                         .secure(true)
                         .sameSite("Strict")
+                        .path("/")
                         .maxAge(Duration.ofDays(14))
                         .build().toString()
         );
@@ -92,6 +98,10 @@ public class AuthController {
                                                        HttpServletResponse response) {
         response.setHeader(HttpHeaders.SET_COOKIE,
                 ResponseCookie.from("refresh")
+                        .httpOnly(true)
+                        .secure(true)
+                        .sameSite("Strict")
+                        .path("/")
                         .maxAge(0)
                         .build().toString()
         );
