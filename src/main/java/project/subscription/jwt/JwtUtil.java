@@ -1,16 +1,13 @@
 package project.subscription.jwt;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import java.util.Date;
 import java.util.List;
 
@@ -29,11 +26,11 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(key);
     }
 
-    public String createToken(String username, String type) {
+    public String createToken(String userId, String type) {
         return Jwts.builder()
-                .claim("sub", username)
+                .claim("sub", type)
                 .claim("roles", List.of("ROLE_USER"))
-                .claim("type", type)
+                .claim("userId", userId)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + (type.equals("access") ? accessExpirationMs : refreshExpirationMs)))
                 .signWith(secretKey)
@@ -44,12 +41,12 @@ public class JwtUtil {
         parseClaim(token);
     }
 
-    public String getUsername(String token) {
-        return parseClaim(token).getSubject();
+    public String getUserId(String token) {
+        return parseClaim(token).get("userId").toString();
     }
 
-    public String getType(String token) {
-        return parseClaim(token).get("type").toString();
+    public String getTokenType(String token) {
+        return parseClaim(token).getSubject();
     }
 
     private Claims parseClaim(String token) {
