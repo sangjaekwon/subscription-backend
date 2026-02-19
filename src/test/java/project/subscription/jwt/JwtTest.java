@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,6 +16,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestPropertySource(properties = {
+        "jwt.access-expiration=10000",
+        "jwt.refresh-expiration=10000"
+}) // 테스트에서는 토큰 10초
 class JwtTest {
 
     @Autowired
@@ -38,11 +43,11 @@ class JwtTest {
     @Test
     public void JWT토큰_예외_만료된토큰() throws Exception {
         //given
-        String accessToken = jwtUtil.createToken("sangjae", "access"); // 테스트는 access 토큰 만료 20초
-        String refreshToken = jwtUtil.createToken("sangjae2", "refresh"); // 테스트는 refresh 토큰 만료 25초
+        String accessToken = jwtUtil.createToken("sangjae", "access"); // access 토큰 만료 10초
+        String refreshToken = jwtUtil.createToken("sangjae2", "refresh"); // refresh 토큰 만료 10초
 
         //when
-        Thread.sleep(2501);
+        Thread.sleep(10001);
 
 
         //then
