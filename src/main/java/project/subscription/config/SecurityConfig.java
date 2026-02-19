@@ -28,7 +28,7 @@ public class SecurityConfig {
     private final CustomOAuth2SuccessHandler handler;
 
     @Bean
-    @Profile("dev")
+    @Profile({"dev", "prod"})
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
                 .csrf(csrf -> csrf.disable())

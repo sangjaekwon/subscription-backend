@@ -2,6 +2,7 @@ package project.subscription.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,10 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final UserRepository userRepository;
 
+    @Cacheable(
+            value = "subscriptions",
+            key = "#userId"
+    )
     @Transactional(readOnly = true)
     public List<SubscriptionDto> getSubscriptions(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);

@@ -59,7 +59,7 @@ public class User extends BaseTimeEntity {
     }
 
     public void removeSubscription(Subscription subscription) {
-        this.subscriptionList.remove(subscription);
+        subscriptionList.remove(subscription);
         subscription.changeUser(null);
     }
 
