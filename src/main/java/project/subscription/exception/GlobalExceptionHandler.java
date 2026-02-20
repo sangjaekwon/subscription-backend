@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import project.subscription.dto.response.CommonApiResponse;
+import project.subscription.exception.ex.MailSendException;
 import project.subscription.exception.ex.SubscriptionNotFoundException;
 import project.subscription.exception.ex.UserNotFoundException;
 
@@ -40,6 +41,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnsupportedOperationException.class)
     public ResponseEntity<CommonApiResponse<?>> unsupportedOperationException(UnsupportedOperationException e) {
         return ResponseEntity.status(400).body(CommonApiResponse.error(e.getMessage()));
+    }
+
+    @ExceptionHandler(MailSendException.class)
+    public ResponseEntity<CommonApiResponse<?>> mailSendException(MailSendException e) {
+        return ResponseEntity.status(503).body(CommonApiResponse.error(e.getMessage()));
     }
 
 }

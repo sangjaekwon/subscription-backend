@@ -9,6 +9,8 @@ import project.subscription.dto.request.JoinRequest;
 import project.subscription.dto.request.LoginRequest;
 import project.subscription.dto.response.LoginResponse;
 import project.subscription.entity.User;
+import project.subscription.exception.ex.ExpiredEmailCodeException;
+import project.subscription.exception.ex.InvalidEmailCodeException;
 import project.subscription.exception.ex.InvalidJwtTokenException;
 import project.subscription.exception.ex.UserNotFoundException;
 import project.subscription.jwt.JwtUtil;
@@ -16,8 +18,7 @@ import project.subscription.repository.UserRepository;
 
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 
 @SpringBootTest
@@ -143,6 +144,45 @@ class AuthServiceTest {
         //then
         assertThat(redisTemplate.opsForValue().get("refresh:" + user.getId()))
                 .isNull();
+    }
+    
+    @Test
+    public void 이메일_인증_코드_검증_정상() throws Exception {
+        //given
+        String testEmail = UUID.randomUUID().toString();
+        int code = 123456;
+        redisTemplate.opsForValue().set("emailCode:" + testEmail, String.valueOf(code));
+
+        //when
+        authService.verifyEmailCode(testEmail, code);
+        String result = redisTemplate.opsForValue().get("emailCode:" + testEmail);
+
+        //then
+        assertThat(result).isNull();
+    }
+    @Test
+    public void 이메일_인증_코드_검증_예외_인증코드불일치() throws Exception {
+        //given
+        String testEmail = UUID.randomUUID().toString();
+        int code = 123456;
+        redisTemplate.opsForValue().set("emailCode:" + testEmail, String.valueOf(code));
+
+        //when
+        int invalidCode = 999999;
+        //then
+        assertThatThrownBy(()->authService.verifyEmailCode(testEmail, invalidCode))
+                .isInstanceOf(InvalidEmailCodeException.class);
+    }
+    @Test
+    public void 이메일_인증_코드_검증_예외_만료된코드() throws Exception {
+        //given
+        String testEmail = UUID.randomUUID().toString();
+        int code = 123456;
+//        redisTemplate.opsForValue().set("emailCode:" + testEmail, String.valueOf(code)); 만료로 가정
+
+        //then
+        assertThatThrownBy(()->authService.verifyEmailCode(testEmail, code))
+                .isInstanceOf(ExpiredEmailCodeException.class);
     }
 
     private static JoinRequest createJoinRequest() {

@@ -155,6 +155,35 @@ class SubscriptionServiceTest {
                 .isInstanceOf(SubscriptionNotFoundException.class);
     }
 
+    @Test
+    public void 구독_기간_조회_정상() throws Exception {
+        //given
+        User user = userRepository.save(User.createLocalUser(UUID.randomUUID().toString(), "sjsj00718@gmail.com", "abc123!", "ROLE_USER"));
+        Subscription subscription1 = getSubscription(); // 오늘 결제
+        Subscription subscription2 = subscriptionRepository.save(new Subscription(
+                "Netfilx", "넷플릭스", CycleType.MONTH, 1, LocalDate.now().plusMonths(2), 5000,
+                List.of(1, 2, 3), List.of(
+                LocalDate.now().plusDays(1).plusMonths(1).minusDays(1),
+                LocalDate.now().plusDays(1).plusMonths(1).minusDays(2),
+                LocalDate.now().plusDays(1).plusMonths(1).minusDays(3))
+        )); // 2달 뒤 결제
+        user.addSubscription(subscription1);
+        user.addSubscription(subscription2);
+
+        //when
+        int day = 40; // 40일
+        List<SubscriptionDto> subscriptionList = subscriptionService.getSubscriptionsDueSoon(user.getId(), day);
+
+
+        //then
+        assertThat(subscriptionList).hasSize(1);
+    }
+    @Test
+    public void 구독_기간_조회_예외_존재하지않는유저() throws Exception {
+        //then
+        assertThatThrownBy(()-> subscriptionService.getSubscriptionsDueSoon(99999999999L, 1))
+                .isInstanceOf(UserNotFoundException.class);
+    }
 
 
     private Subscription getSubscription() {

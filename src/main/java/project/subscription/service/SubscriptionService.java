@@ -2,7 +2,9 @@ package project.subscription.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,23 @@ public class SubscriptionService {
     private final UserRepository userRepository;
 
     @Cacheable(
+            value = "subscriptions:due",
+            key = "#userId"
+    )
+    @Transactional(readOnly = true)
+    public List<SubscriptionDto> getSubscriptionsDueSoon(Long userId, int day) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        List<Subscription> subscriptionDue =
+                subscriptionRepository.findSubscriptionDue(user, LocalDate.now().plusDays(day));
+
+
+        return subscriptionDue.stream()
+                .map(SubscriptionDto::new)
+                .toList();
+    }
+
+
+    @Cacheable(
             value = "subscriptions",
             key = "#userId"
     )
@@ -41,31 +60,21 @@ public class SubscriptionService {
                 .toList();
     }
 
-
+    @Caching(evict = {
+            @CacheEvict(value = "subscriptions", key = "#userId"),
+            @CacheEvict(value = "subscriptions:due", key = "#userId")
+    })
     public void saveSubscription(SubscriptionDto subscriptionDto, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         CycleType cycle = subscriptionDto.getPaymentCycle();
 
-        LocalDate time = subscriptionDto.getDday();
-        if (cycle.equals(CycleType.MONTH)) {
-            time = time.plusMonths(subscriptionDto.getCycleInterval());
+        LocalDate time = cycle.plus(subscriptionDto.getDday(), subscriptionDto.getCycleInterval());
 
-        } else {
-            time = time.plusYears(subscriptionDto.getCycleInterval());
-        }
-        int lastDay = time.lengthOfMonth();
-        time = time.withDayOfMonth(
-                Math.min(subscriptionDto.getDday().getDayOfMonth(), lastDay)
-        );
+        time = calculateNextPayDate(subscriptionDto, time);
 
         List<Integer> alarmList = subscriptionDto.getAlarm();
-        List<LocalDate> alarm = new ArrayList<>();
-        if (!alarmList.isEmpty()) {
-            for (Integer i : alarmList) {
-                alarm.add(time.minusDays(i));
-            }
-        }
+        List<LocalDate> alarm = calculateAlarms(alarmList, time);
 
         Subscription subscription = new Subscription(subscriptionDto.getCategory(), subscriptionDto.getName(),
                 subscriptionDto.getPaymentCycle(), subscriptionDto.getCycleInterval(), time, subscriptionDto.getPrice(),
@@ -75,6 +84,10 @@ public class SubscriptionService {
     }
 
 
+    @Caching(evict = {
+            @CacheEvict(value = "subscriptions", key = "#userId"),
+            @CacheEvict(value = "subscriptions:due", key = "#userId")
+    })
     public void updateSubscription(SubscriptionDto subscriptionDto, Long userId, Long subscriptionId) {
         Subscription subscription = subscriptionRepository.findById(subscriptionId).orElseThrow(SubscriptionNotFoundException::new);
 
@@ -82,32 +95,22 @@ public class SubscriptionService {
 
         CycleType cycle = subscriptionDto.getPaymentCycle();
 
-        LocalDate time = subscriptionDto.getDday();
-        if (cycle.equals(CycleType.MONTH)) {
-            time = time.plusMonths(subscriptionDto.getCycleInterval());
+        LocalDate time = cycle.plus(subscriptionDto.getDday(), subscriptionDto.getCycleInterval());
 
-        } else {
-            time = time.plusYears(subscriptionDto.getCycleInterval());
-        }
-        int lastDay = time.lengthOfMonth();
-        time = time.withDayOfMonth(
-                Math.min(subscriptionDto.getDday().getDayOfMonth(), lastDay)
-        );
+        time = calculateNextPayDate(subscriptionDto, time);
 
         List<Integer> alarmList = subscriptionDto.getAlarm();
-        List<LocalDate> alarm = new ArrayList<>();
-        if (!alarmList.isEmpty()) {
-            for (Integer i : alarmList) {
-                alarm.add(time.minusDays(i));
-            }
-        }
+        List<LocalDate> alarm = calculateAlarms(alarmList, time);
 
         subscription.updateSubscription(subscriptionDto.getCategory(), subscriptionDto.getName(),
                 subscriptionDto.getPaymentCycle(), subscriptionDto.getCycleInterval(), time, subscriptionDto.getPrice(),
                 subscriptionDto.getAlarm(), alarm);
     }
 
-
+    @Caching(evict = {
+            @CacheEvict(value = "subscriptions", key = "#userId"),
+            @CacheEvict(value = "subscriptions:due", key = "#userId")
+    })
     public void deleteSubscription(Long userId, Long subscriptionId) {
         Subscription subscription = subscriptionRepository.findById(subscriptionId).orElseThrow(SubscriptionNotFoundException::new);
 
@@ -116,6 +119,25 @@ public class SubscriptionService {
         User user = subscription.getUser();
         user.removeSubscription(subscription);
 
+    }
+
+
+    private static LocalDate calculateNextPayDate(SubscriptionDto subscriptionDto, LocalDate time) {
+        int lastDay = time.lengthOfMonth();
+        time = time.withDayOfMonth(
+                Math.min(subscriptionDto.getDday().getDayOfMonth(), lastDay)
+        );
+        return time;
+    }
+
+    private static List<LocalDate> calculateAlarms(List<Integer> alarmList, LocalDate time) {
+        List<LocalDate> alarm = new ArrayList<>();
+        if (!alarmList.isEmpty()) {
+            for (Integer i : alarmList) {
+                alarm.add(time.minusDays(i));
+            }
+        }
+        return alarm;
     }
 
 }

@@ -46,13 +46,11 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
 
-    implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'com.fasterxml.jackson.core:jackson-databind' // 객체 저장시 json 직렬화
-    testImplementation 'it.ozimov:embedded-redis:0.7.2' // 테스트용 임베디드 redis
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
@@ -62,6 +60,10 @@ dependencies {
     //test lombok 사용
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'com.icegreen:greenmail-junit5:2.0.1'     //메일 전송 테스트
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'

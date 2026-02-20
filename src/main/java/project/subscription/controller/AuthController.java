@@ -14,18 +14,17 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import project.subscription.dto.request.EmailRequest;
 import project.subscription.dto.request.LoginRequest;
+import project.subscription.dto.request.VerifyEmailCodeRequest;
 import project.subscription.dto.response.CommonApiResponse;
 import project.subscription.dto.response.LoginResponse;
 import project.subscription.service.AuthService;
 
 import java.time.Duration;
 
-@Tag(name = "Auth API", description = "로그인, 로그아웃, 토큰 재발급 API")
+@Tag(name = "Auth API", description = "로그인, 로그아웃, 토큰 재발급 API, 이메일 인증 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -107,6 +106,29 @@ public class AuthController {
         );
 
         authService.logout(username);
+        return ResponseEntity.noContent().build(); // 204
+    }
+
+    @Operation(summary = "이메일 인증 코드 검증 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "410", description = "인증 코드 만료"),
+            @ApiResponse(responseCode = "400", description = "인증 코드 불일치")
+    })
+    @PostMapping("/email/verify")
+    public ResponseEntity<CommonApiResponse<?>> emailVerify(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "인증 코드는 6자리 숫자로 입력") @RequestBody @Validated VerifyEmailCodeRequest emailCodeRequest) {
+
+        authService.verifyEmailCode(emailCodeRequest.getEmail(), emailCodeRequest.getCode());
+
         return ResponseEntity.ok(CommonApiResponse.ok(null));
     }
+
+    @Operation(summary = "인증 메일 요청 API")
+    @PostMapping("/email/request-code")
+    public ResponseEntity<CommonApiResponse<String>> requestCode(@RequestBody @Validated EmailRequest emailRequest) {
+
+        authService.createEmailCode(emailRequest.getEmail());
+
+        return ResponseEntity.ok(CommonApiResponse.ok(null));
+    }
+
 }

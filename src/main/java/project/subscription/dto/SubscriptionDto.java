@@ -10,13 +10,15 @@ import lombok.NoArgsConstructor;
 import project.subscription.entity.CycleType;
 import project.subscription.entity.Subscription;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SubscriptionDto {
+public class SubscriptionDto implements Serializable {
+//    private static final long serialVersionUID = 1L;
 
     private Long id;
     @NotEmpty(message = "카테고리를 선택해 주세요.")

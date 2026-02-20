@@ -23,7 +23,7 @@ public class AlarmService {
         for (Subscription sub : targets) {
             User user = sub.getUser();
 
-            mailService.sendTextMail(
+            mailService.sendMail(
                     user.getEmail(),
                     "구독 결제 알림",
                     sub.getName() + " 결제가 곧 예정되어 있습니다."
