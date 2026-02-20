@@ -42,7 +42,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
                         .build().toString()
         );
 
-        redisTemplate.opsForValue().set("refresh:" + userPrincipal.getUsername(), refresh);
+        redisTemplate.opsForValue().set("refresh:" + userPrincipal.getUsername(), refresh, Duration.ofDays(14));
 
         response.setStatus(200);
         response.setContentType("application/json");

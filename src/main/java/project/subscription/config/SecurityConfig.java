@@ -43,7 +43,8 @@ public class SecurityConfig {
                             .userInfoEndpoint(userInfo -> userInfo.userService(userService))
                             .successHandler(handler))
                 .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/api/user/*", "/api/auth/login", "/swagger-ui/**", "/v3/api-docs/**", "/script/**", "/css/**").permitAll().anyRequest().authenticated());
+                        authorize.requestMatchers("/api/auth/email/*", "/api/user/join", "/api/auth/login", "/swagger-ui/**",
+                                "/v3/api-docs/**", "/script/**", "/css/**").permitAll().anyRequest().authenticated());
                 // 나중에 swagger admin만 가능하게 수정하기
         return http.build();
     }
@@ -71,7 +72,8 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/api/user/*", "/api/auth/login", "/swagger-ui/**", "/v3/api-docs/**", "/script/**", "/css/**").permitAll().anyRequest().authenticated());
+                        authorize.requestMatchers("/api/auth/email/*", "/api/user/join", "/api/auth/login", "/swagger-ui/**",
+                                "/v3/api-docs/**", "/script/**", "/css/**").permitAll().anyRequest().authenticated());
         return http.build();
     }
 }

@@ -2,18 +2,11 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
+
 spring:
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: sjsj00718@gmail.com
-    password: lxqsrftisqfsqwsr
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+    host: localhost
+    port: 3025
   jpa:
     hibernate:
       ddl-auto: create
@@ -24,7 +17,7 @@ spring:
     redis:
       timeout: 5000ms
   cache:
-    type: redis
+    type: none
   profiles:
     active: test
 

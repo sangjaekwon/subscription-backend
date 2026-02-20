@@ -2,8 +2,6 @@ package project.subscription.controller;
 
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import project.subscription.dto.SubscriptionDto;
+import project.subscription.dto.request.SubscriptionDueRequest;
 import project.subscription.dto.response.CommonApiResponse;
 import project.subscription.service.SubscriptionService;
 
@@ -30,6 +29,12 @@ public class SubscriptionController {
     @GetMapping
     public ResponseEntity<CommonApiResponse<List<SubscriptionDto>>> getSubscription(@AuthenticationPrincipal(expression = "userId") Long userId) {
         return ResponseEntity.ok(CommonApiResponse.ok(subscriptionService.getSubscriptions(userId)));
+    }
+
+    @Operation(summary = "결제 기간 임박 구독 목록 조회", description = "결제일 기준 day일전 구독 목록 조회")
+    @GetMapping("/due")
+    public ResponseEntity<CommonApiResponse<List<SubscriptionDto>>> getSubscriptionDue(@RequestBody SubscriptionDueRequest subscriptionDueRequest, @AuthenticationPrincipal(expression = "userId") Long userId) {
+        return ResponseEntity.ok(CommonApiResponse.ok(subscriptionService.getSubscriptionsDueSoon(userId, subscriptionDueRequest.getDay())));
     }
 
     @Operation(summary = "구독 정보 저장")
@@ -52,6 +57,8 @@ public class SubscriptionController {
         subscriptionService.updateSubscription(subscriptionDto, userId, subscriptionId);
         return ResponseEntity.ok(CommonApiResponse.ok(null));
     }
+
+
 
 
 }

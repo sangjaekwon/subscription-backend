@@ -10,15 +10,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import project.subscription.dto.CustomUserPrincipal;
 import project.subscription.dto.request.LoginRequest;
 import project.subscription.dto.response.LoginResponse;
-import project.subscription.exception.ex.ExpiredJwtTokenException;
-import project.subscription.exception.ex.InvalidJwtTokenException;
-import project.subscription.exception.ex.UserNotFoundException;
+import project.subscription.exception.ex.*;
 import project.subscription.jwt.JwtUtil;
 
 import java.time.Duration;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @Transactional(readOnly = true)
@@ -28,6 +29,8 @@ public class AuthService {
     private final RedisTemplate<String, String> redisTemplate;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final MailService mailService;
+    private final TemplateEngine templateEngine;
 
     public LoginResponse login(LoginRequest loginRequest) {
         Authentication authenticate = null;
@@ -76,5 +79,31 @@ public class AuthService {
     public void logout(String userId) {
         redisTemplate.delete("refresh:" + userId);
         SecurityContextHolder.clearContext();
+    }
+
+    public void createEmailCode(String email) {
+        int emailCode = ThreadLocalRandom.current().nextInt(100000, 1000000);
+
+        Context context = new Context();
+        context.setVariable("code", emailCode);
+        String html = templateEngine.process("email-code", context);
+
+        mailService.sendVerifyMail(email, html);
+
+        redisTemplate.opsForValue().set("emailCode:" + email, String.valueOf(emailCode));
+    }
+
+    public void verifyEmailCode(String email, int code) {
+        String key = "emailCode:" + email;
+        String savedCode = redisTemplate.opsForValue().get(key);
+
+        if(savedCode == null) {
+            throw new ExpiredEmailCodeException();
+        }
+        if(!savedCode.equals(String.valueOf(code))) {
+            throw new InvalidEmailCodeException();
+        }
+
+        redisTemplate.delete(key);
     }
 }
