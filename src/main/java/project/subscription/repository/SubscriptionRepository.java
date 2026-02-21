@@ -8,7 +8,7 @@ import project.subscription.entity.User;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
+public interface SubscriptionRepository extends JpaRepository<Subscription, Long>, SubscriptionQueryRepository {
     List<Subscription> user(User user);
 
     List<Subscription> findByUser(User user);

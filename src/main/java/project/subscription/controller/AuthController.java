@@ -92,6 +92,7 @@ public class AuthController {
 
     @Operation(summary = "로그아웃 API")
     @SecurityRequirement(name = "bearerAuth")
+    @ApiResponse(responseCode = "204", description = "NO_CONTENT")
     @PostMapping("/logout")
     public ResponseEntity<CommonApiResponse<?>> logout(@AuthenticationPrincipal(expression = "username") String username,
                                                        HttpServletResponse response) {
