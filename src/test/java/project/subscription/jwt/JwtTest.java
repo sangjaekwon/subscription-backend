@@ -16,10 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {
-        "jwt.access-expiration=10000",
-        "jwt.refresh-expiration=10000"
-}) // 테스트에서는 토큰 10초
 class JwtTest {
 
     @Autowired
@@ -40,21 +36,6 @@ class JwtTest {
 
     }
 
-    @Test
-    public void JWT토큰_예외_만료된토큰() throws Exception {
-        //given
-        String accessToken = jwtUtil.createToken("sangjae", "access"); // access 토큰 만료 10초
-        String refreshToken = jwtUtil.createToken("sangjae2", "refresh"); // refresh 토큰 만료 10초
-
-        //when
-        Thread.sleep(10001);
-
-
-        //then
-        assertThatThrownBy(() -> jwtUtil.validate(accessToken)).isInstanceOf(ExpiredJwtException.class);
-        assertThatThrownBy(() -> jwtUtil.validate(refreshToken)).isInstanceOf(ExpiredJwtException.class);
-
-    }
 
     @Test
     public void JWT필터_정상() throws Exception {

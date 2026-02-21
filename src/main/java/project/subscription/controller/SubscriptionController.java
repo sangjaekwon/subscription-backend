@@ -2,6 +2,8 @@ package project.subscription.controller;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -26,32 +28,52 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     @Operation(summary = "구독 목록 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "구독 목록 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.")
+    })
     @GetMapping
     public ResponseEntity<CommonApiResponse<List<SubscriptionDto>>> getSubscription(@AuthenticationPrincipal(expression = "userId") Long userId) {
         return ResponseEntity.ok(CommonApiResponse.ok(subscriptionService.getSubscriptions(userId)));
     }
 
     @Operation(summary = "결제 기간 임박 구독 목록 조회", description = "결제일 기준 day일전 구독 목록 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "결제일 기반 구독 목록 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.")
+    })
     @GetMapping("/due")
     public ResponseEntity<CommonApiResponse<List<SubscriptionDto>>> getSubscriptionDue(@RequestBody SubscriptionDueRequest subscriptionDueRequest, @AuthenticationPrincipal(expression = "userId") Long userId) {
         return ResponseEntity.ok(CommonApiResponse.ok(subscriptionService.getSubscriptionsDueSoon(userId, subscriptionDueRequest.getDay())));
     }
 
     @Operation(summary = "구독 정보 저장")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "구독 정보 저장 성공"),
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.")
+    })
     @PostMapping
     public ResponseEntity<CommonApiResponse<?>> saveSubscription(@Validated @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "id는 제거해서 요청, paymentCycle은 MONTH, YEAR로 요청") @RequestBody SubscriptionDto subscriptionDto, @AuthenticationPrincipal(expression = "userId") Long userId) {
         subscriptionService.saveSubscription(subscriptionDto, userId);
-        return ResponseEntity.ok(CommonApiResponse.ok(null));
+        return ResponseEntity.status(201).body(CommonApiResponse.ok(null));
     }
 
     @Operation(summary = "구독 정보 삭제")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "구독 정보 삭제 성공"),
+            @ApiResponse(responseCode = "404", description = "구독 정보를 찾을 수 없습니다.")
+    })
     @DeleteMapping
     public ResponseEntity<CommonApiResponse<List<?>>> deleteSubscription(@RequestParam Long subscriptionId, @AuthenticationPrincipal(expression = "userId") Long userId) {
         subscriptionService.deleteSubscription(userId, subscriptionId);
-        return ResponseEntity.ok(CommonApiResponse.ok(null));
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "구독 정보 수정")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "구독 정보 수정 성공"),
+            @ApiResponse(responseCode = "404", description = "구독 혹은 유저 정보를 찾을 수 없습니다.")
+    })
     @PutMapping
     public ResponseEntity<CommonApiResponse<List<?>>> updateSubscription(@RequestBody SubscriptionDto subscriptionDto, @RequestParam Long subscriptionId, @AuthenticationPrincipal(expression = "userId") Long userId) {
         subscriptionService.updateSubscription(subscriptionDto, userId, subscriptionId);
