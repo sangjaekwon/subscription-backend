@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>구독 결제 알림</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f6f8f5; font-family:Apple SD Gothic Neo, Arial, sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+        <td align="center" style="padding:40px 0;">
+            <!-- 메일 카드 -->
+            <table width="600" cellpadding="0" cellspacing="0"
+                   style="background:#ffffff; border-radius:12px; overflow:hidden;
+                          box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+
+                <!-- 헤더 -->
+                <tr>
+                    <td style="background:#93b86d; padding:24px; text-align:center;">
+                        <h1 style="margin:0; font-size:22px; color:#ffffff; font-weight:bold;">
+                            구독 결제 알림
+                        </h1>
+                    </td>
+                </tr>
+
+                <!-- 본문 -->
+                <tr>
+                    <td style="padding:32px; color:#333333;">
+                        <p style="margin:0 0 16px; font-size:16px;">
+                            안녕하세요 👋
+                        </p>
+
+                        <!-- 날짜별 알림 문구 -->
+                        <p style="margin:0 0 24px; font-size:16px; line-height:1.6;"
+                           th:if="${daysLeft == 1}">
+                            <strong>내일 결제가 예정되어 있습니다.</strong><br>
+                            원치 않는 결제라면 지금 바로 확인해 주세요.
+                        </p>
+
+                        <p style="margin:0 0 24px; font-size:16px; line-height:1.6;"
+                           th:if="${daysLeft > 2 and daysLeft < 7}">
+                            <strong>3일 후 결제가 예정되어 있습니다.</strong><br>
+                            결제 일이 다가오고 있습니다! 통잔 잔고를 미리 체크하세요.
+                        </p>
+
+                        <p style="margin:0 0 24px; font-size:16px; line-height:1.6;"
+                           th:if="${daysLeft >= 7}">
+                            <strong>7일 후 결제가 예정되어 있습니다.</strong><br>
+                            구독 유지 여부를 천천히 결정해보세요.
+                        </p>
+
+                        <!-- 구독 정보 -->
+                        <table width="100%" cellpadding="0" cellspacing="0"
+                               style="background:#f3f7f1; border-radius:10px; padding:20px;">
+                            <tr>
+                                <td style="font-size:15px; padding-bottom:8px;">
+                                     <strong>구독 서비스</strong> :
+                                    <span th:text="${subscriptionName}">넷플릭스</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:15px; padding-bottom:8px;">
+                                     <strong>결제 금액</strong> :
+                                    <span th:text="${price}">5,000</span>원
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:15px;">
+                                     <strong>결제 예정일</strong> :
+                                    <span th:text="${dday}">2026-03-22</span>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <p style="margin:24px 0 0; font-size:14px; color:#666666;">
+                            구독을 유지할지, 해지할지 미리 결정해보세요.
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- 버튼 -->
+                <tr>
+                    <td align="center" style="padding:0 32px 32px;">
+                        <a href="https://구독관리서비스.site/"
+                           style="display:inline-block; padding:14px 28px; background:#93b86d;
+                  color:#ffffff; text-decoration:none;
+                  font-size:15px; font-weight:bold; border-radius:24px;
+                  transition: background 0.3s ease;">
+                            구독 관리하러 가기
+                        </a>
+                    </td>
+                </tr>
+
+                <!-- 푸터 -->
+                <tr>
+                    <td style="background:#f3f7f1; padding:16px; text-align:center;
+                               font-size:12px; color:#777777;">
+                        본 메일은 구독관리서비스.site에서 자동 발송되었습니다.<br>
+                        © 구독관리서비스.site · All rights reserved
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

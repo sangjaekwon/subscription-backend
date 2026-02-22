@@ -17,7 +17,8 @@ public enum ErrorCode {
 
     EXPIRED_EMAILCODE(410, "인증 코드가 만료되었습니다."),
     INVALID_EMAILCODE(400, "인증 코드가 알맞지 않습니다."),
-    MAIL_SEND_FAILED(503, "메일 전송에 실패하였습니다.");
+    MAIL_SEND_FAILED(503, "메일 전송에 실패하였습니다."),
+    EMAIL_NOT_VERIFIED(401, "이메일 인증 성공 후 다시 시도해 주세요");
 
 
     private final int status;

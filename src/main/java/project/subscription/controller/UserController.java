@@ -27,7 +27,8 @@ public class UserController {
     @Operation(summary = "회원가입 API")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "회원가입 성공"),
-            @ApiResponse(responseCode = "400", description = "입력값 오류, 아이디 중복")
+            @ApiResponse(responseCode = "400", description = "입력값 오류, 아이디 중복"),
+            @ApiResponse(responseCode = "401", description = "이메일 인증 검증 실패")
     })
     @PostMapping("/join")
     public ResponseEntity<CommonApiResponse<?>> join(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "아이디 4~12자, 비밀번호 영어+숫자+특수문자를 포함한 6~16자, 이메일은 알림 전송용")

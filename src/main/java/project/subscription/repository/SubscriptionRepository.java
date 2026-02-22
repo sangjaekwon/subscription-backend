@@ -7,14 +7,16 @@ import project.subscription.entity.User;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long>, SubscriptionQueryRepository {
     List<Subscription> user(User user);
 
     List<Subscription> findByUser(User user);
 
-    List<Subscription> findByAlarmDateContaining(LocalDate now);
+    @Query(value = "SELECT * FROM subscription WHERE FIND_IN_SET(:today, alarm_date) > 0", nativeQuery = true)
+    List<Subscription> findByAlarmDateContaining(String today);
 
-    @Query(value = "select s from Subscription s where s.dday <= :date and s.user = :user order by s.dday ")
-    List<Subscription> findSubscriptionDue(User user, LocalDate date);
+
+    List<Subscription> findByDday(LocalDate dday);
 }

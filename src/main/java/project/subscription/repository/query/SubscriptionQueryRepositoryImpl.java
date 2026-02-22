@@ -1,7 +1,6 @@
 package project.subscription.repository.query;
 
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -17,8 +16,10 @@ import project.subscription.dto.request.SubscriptionSortType;
 import project.subscription.entity.User;
 import project.subscription.repository.SubscriptionQueryRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import static com.querydsl.core.types.Projections.constructor;
 import static project.subscription.entity.QSubscription.subscription;
 
 
@@ -31,10 +32,10 @@ public class SubscriptionQueryRepositoryImpl implements SubscriptionQueryReposit
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-    public Page<SubscriptionDto> searchSubscriptionsByCondition(User user, SubscriptionSearchCondition condition,
-                                                                Pageable pageable) {
+    public Page<SubscriptionDto> searchPageSubscriptionsByCondition(User user, SubscriptionSearchCondition condition,
+                                                                    Pageable pageable) {
         List<SubscriptionDto> result = queryFactory
-                .select(Projections.constructor(SubscriptionDto.class, subscription))
+                .select(constructor(SubscriptionDto.class, subscription))
                 .from(subscription)
                 .where(subscription.user.eq(user), nameEq(condition.getSubscriptionName()))
                 .orderBy(sortSub(condition.getSortType()))
@@ -46,6 +47,42 @@ public class SubscriptionQueryRepositoryImpl implements SubscriptionQueryReposit
                 .select(subscription.count())
                 .from(subscription)
                 .where(subscription.user.eq(user), (nameEq(condition.getSubscriptionName())));
+
+        return PageableExecutionUtils.getPage(result, pageable, countQuery::fetchOne);
+    }
+
+
+    public Page<SubscriptionDto> findPageSubscriptions(User user, Pageable pageable) {
+        List<SubscriptionDto> result = queryFactory
+                .select(constructor(SubscriptionDto.class, subscription))
+                .from(subscription)
+                .where(subscription.user.eq(user))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(subscription.count())
+                .where(subscription.user.eq(user))
+                .from(subscription);
+
+        return PageableExecutionUtils.getPage(result, pageable, countQuery::fetchOne);
+
+    }
+
+    public Page<SubscriptionDto> findPageSubscriptionsDueSoon(User user, LocalDate date, Pageable pageable) {
+        List<SubscriptionDto> result = queryFactory
+                .select(constructor(SubscriptionDto.class, subscription))
+                .from(subscription)
+                .where(subscription.user.eq(user), subscription.dday.loe(date))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(subscription.count())
+                .from(subscription)
+                .where(subscription.user.eq(user), subscription.dday.loe(date));
 
         return PageableExecutionUtils.getPage(result, pageable, countQuery::fetchOne);
     }

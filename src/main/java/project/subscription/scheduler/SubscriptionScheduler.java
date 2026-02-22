@@ -6,18 +6,26 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import project.subscription.service.AlarmService;
+import project.subscription.service.SubscriptionService;
 
 import java.time.LocalDate;
 
 @Component
 @RequiredArgsConstructor
-public class AlarmScheduler {
+@Transactional
+public class SubscriptionScheduler {
 
     private final AlarmService alarmService;
+    private final SubscriptionService subscriptionService;
 
-    @Transactional
     @Scheduled(cron = "0 0 9 * * *")
-    public void alarm() {
+    public void sendSbubscriptionalarms() {
         alarmService.processAlarm(LocalDate.now());
     }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void updateSubscriptionsForNextCycle() {
+        subscriptionService.refreshSubscriptionCycle();
+    }
+
 }

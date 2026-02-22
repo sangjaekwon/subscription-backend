@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import project.subscription.dto.request.JoinRequest;
 import project.subscription.entity.User;
 import project.subscription.exception.ex.DuplicateUsernameException;
+import project.subscription.exception.ex.EmailNotVerifiedException;
 import project.subscription.repository.UserRepository;
 
 @Service
@@ -25,6 +26,12 @@ public class UserService {
         User user = userRepository.findByUsername(joinRequest.getUsername()).orElse(null);
         if (user != null) throw new DuplicateUsernameException();
 
+        String key = "email:verification:" + joinRequest.getEmail();
+
+        String verify = redisTemplate.opsForValue().get(key);
+        if (!"true".equals(verify)) throw new EmailNotVerifiedException();
+
+        redisTemplate.delete(key);
 
         userRepository.save(User.createLocalUser(joinRequest.getUsername(), joinRequest.getEmail(), encoder.encode(joinRequest.getPassword()), "ROLE_USER"));
     }

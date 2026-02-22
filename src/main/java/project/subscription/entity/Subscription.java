@@ -9,6 +9,7 @@ import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -31,7 +32,8 @@ public class Subscription extends BaseTimeEntity {
     private Integer price;
 
     private List<Integer> alarm; // 알람 언제 할 건지
-    private List<LocalDate> alarmDate; // 알람이 일어날 날짜
+    @Convert(converter = LocalDateSetConverter.class)
+    private Set<LocalDate> alarmDate; // 알람이 일어날 날짜
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -39,7 +41,7 @@ public class Subscription extends BaseTimeEntity {
 
 
     public Subscription(String category, String name, CycleType paymentCycle, Integer cycleInterval,
-                        LocalDate dday, Integer price, List<Integer> alarm, List<LocalDate> alarmDate) {
+                        LocalDate dday, Integer price, List<Integer> alarm, Set<LocalDate> alarmDate) {
         this.category = category;
         this.name = name;
         this.paymentCycle = paymentCycle;
@@ -51,7 +53,7 @@ public class Subscription extends BaseTimeEntity {
     }
 
     public void updateSubscription(String category, String name, CycleType paymentCycle, Integer cycleInterval,
-                                   LocalDate dday, Integer price, List<Integer> alarm, List<LocalDate> alarmDate) {
+                                   LocalDate dday, Integer price, List<Integer> alarm, Set<LocalDate> alarmDate) {
         this.category = category;
         this.name = name;
         this.paymentCycle = paymentCycle;
@@ -65,5 +67,10 @@ public class Subscription extends BaseTimeEntity {
 
     public void changeUser(User user) {
         this.user = user;
+    }
+
+    public void refreshPaymentDay(LocalDate dday, Set<LocalDate> alarmDate) {
+        this.dday = dday;
+        this.alarmDate = alarmDate;
     }
 }
