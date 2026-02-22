@@ -7,6 +7,11 @@ spring:
   mail:
     host: localhost
     port: 3025
+  datasource:
+    url: jdbc:mysql://localhost:3306/subscription
+    username: root
+    password: sangjae
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: create

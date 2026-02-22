@@ -3,6 +3,7 @@ package project.subscription.service;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import project.subscription.dto.request.JoinRequest;
@@ -26,6 +27,8 @@ class UserServiceTest {
     private UserRepository userRepository;
     @Autowired
     private BCryptPasswordEncoder encoder;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     @Test
     public void 회원가입_정상() throws Exception {
@@ -33,6 +36,7 @@ class UserServiceTest {
         JoinRequest joinRequest = createJoinRequest();
 
         //when
+        redisTemplate.opsForValue().set("email:verification:" + joinRequest.getEmail(), "true");
         userService.join(joinRequest);
         User user = userRepository.findByUsername(joinRequest.getUsername()).get();
         //then
@@ -61,11 +65,13 @@ class UserServiceTest {
                 isInstanceOf(DuplicateUsernameException.class);
     }
 
-    private static JoinRequest createJoinRequest() {
+    private JoinRequest createJoinRequest() {
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setUsername(UUID.randomUUID().toString()); // redis 저장시 개발서버와 겹칠 수 있기에
+        joinRequest.setEmail("sangjae@sangjae.test");
         joinRequest.setPassword("abc123!@#");
         joinRequest.setPasswordConfirm("abc123!@#");
+        redisTemplate.opsForValue().set("email:verification:" + joinRequest.getEmail(), "true");
         return joinRequest;
     }
 }

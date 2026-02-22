@@ -18,7 +18,8 @@ import project.subscription.repository.UserRepository;
 
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 @SpringBootTest
@@ -145,7 +146,7 @@ class AuthServiceTest {
         assertThat(redisTemplate.opsForValue().get("refresh:" + user.getId()))
                 .isNull();
     }
-    
+
     @Test
     public void 이메일_인증_코드_검증_정상() throws Exception {
         //given
@@ -160,6 +161,7 @@ class AuthServiceTest {
         //then
         assertThat(result).isNull();
     }
+
     @Test
     public void 이메일_인증_코드_검증_예외_인증코드불일치() throws Exception {
         //given
@@ -170,9 +172,10 @@ class AuthServiceTest {
         //when
         int invalidCode = 999999;
         //then
-        assertThatThrownBy(()->authService.verifyEmailCode(testEmail, invalidCode))
+        assertThatThrownBy(() -> authService.verifyEmailCode(testEmail, invalidCode))
                 .isInstanceOf(InvalidEmailCodeException.class);
     }
+
     @Test
     public void 이메일_인증_코드_검증_예외_만료된코드() throws Exception {
         //given
@@ -181,15 +184,17 @@ class AuthServiceTest {
 //        redisTemplate.opsForValue().set("emailCode:" + testEmail, String.valueOf(code)); 만료로 가정
 
         //then
-        assertThatThrownBy(()->authService.verifyEmailCode(testEmail, code))
+        assertThatThrownBy(() -> authService.verifyEmailCode(testEmail, code))
                 .isInstanceOf(ExpiredEmailCodeException.class);
     }
 
-    private static JoinRequest createJoinRequest() {
+    private JoinRequest createJoinRequest() {
         JoinRequest joinRequest = new JoinRequest();
         joinRequest.setUsername(UUID.randomUUID().toString()); // redis 저장시 개발서버와 겹칠 수 있기에
+        joinRequest.setEmail("sangjae@sangjae.test");
         joinRequest.setPassword("abc123!@#");
         joinRequest.setPasswordConfirm("abc123!@#");
+        redisTemplate.opsForValue().set("email:verification:" + joinRequest.getEmail(), "true");
         return joinRequest;
     }
 

@@ -3,7 +3,7 @@ package project.subscription.dto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,16 +25,17 @@ public class SubscriptionDto implements Serializable {
     private String category;
     @NotEmpty(message = "이름을 작성해 주세요.")
     private String name;
-    @NotEmpty(message = "결제 주기를 선택해 주세요.")
+    @NotNull(message = "결제 주기를 선택해 주세요.")
     private CycleType paymentCycle; // 달마다인지 년마다인지
-    @NotEmpty(message = "주기를 선택해 주세요.")
-    @Size(min = 1, max = 11, message = "1~11 사이를 입력해 주세요")
+    @NotNull(message = "주기를 선택해 주세요.")
+    @Min(value = 1, message = "1~11 사이를 입력해 주세요")
+    @Max(value = 11, message = "1~11 사이를 입력해 주세요")
     private Integer cycleInterval; // 몇달(년)에 한 번인지
-    @NotEmpty(message = "결제일을 선택해 주세요.")
+    @NotNull(message = "결제일을 선택해 주세요.")
     private LocalDate dday; // 결제일
-    @NotEmpty(message = "가격을 입력해 주세요.")
+    @NotNull(message = "가격을 입력해 주세요.")
     @Min(value = 0, message = "0보다 큰 숫자를 입력해 주세요.")
-    @Max(value= 2100000000, message = "숫자가 너무 큽니다.")
+    @Max(value = 2100000000, message = "숫자가 너무 큽니다.")
     private Integer price;
     @NotEmpty(message = "알람 주기를 선택해 주세요.")
     private List<Integer> alarm;

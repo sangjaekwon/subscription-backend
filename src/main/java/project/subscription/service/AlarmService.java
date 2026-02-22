@@ -2,53 +2,48 @@ package project.subscription.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import project.subscription.entity.CycleType;
+import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import project.subscription.entity.Subscription;
 import project.subscription.entity.User;
 import project.subscription.repository.SubscriptionRepository;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AlarmService {
 
     private final SubscriptionRepository subscriptionRepository;
     private final MailService mailService;
+    private final TemplateEngine templateEngine;
+
 
     public void processAlarm(LocalDate today) {
-        List<Subscription> targets = subscriptionRepository.findByAlarmDateContaining(today);
+        List<Subscription> targets = subscriptionRepository.findByAlarmDateContaining(today.toString());
+
 
         for (Subscription sub : targets) {
             User user = sub.getUser();
 
-            mailService.sendMail(
-                    user.getEmail(),
-                    "구독 결제 알림",
-                    sub.getName() + " 결제가 곧 예정되어 있습니다."
-            );
+            long daysLeft = ChronoUnit.DAYS.between(today, sub.getDday());
+
+            Context context = new Context();
+            context.setVariable("daysLeft", daysLeft);
+            context.setVariable("subscriptionName", sub.getName());
+            context.setVariable("price", sub.getPrice());
+            context.setVariable("dday", sub.getDday());
+
+            String html = templateEngine.process("alarm", context);
+
+            mailService.sendMail(user.getEmail(), html,
+                    "⏰ [" + daysLeft + "일 후] " + sub.getName() + " 구독 결제 예정 안내 – 구독관리서비스.site");
+
             sub.getAlarmDate().remove(today);
-            LocalDate alarm = today;
-            if (sub.getAlarmDate().isEmpty()) {
-                CycleType cycle = sub.getPaymentCycle();
-
-                if (cycle.equals(CycleType.MONTH)) {
-                    alarm = alarm.plusMonths(sub.getCycleInterval());
-                } else {
-                    alarm = alarm.plusYears(sub.getCycleInterval());
-                }
-                int length = alarm.lengthOfMonth();
-                alarm = alarm.withDayOfMonth(Math.min(today.getDayOfMonth(), length));
-
-                List<Integer> alarmList = sub.getAlarm();
-                List<LocalDate> alarmDay = sub.getAlarmDate();
-                if (!alarmList.isEmpty()) {
-                    for (Integer i : alarmList) {
-                        alarmDay.add(alarm.minusDays(i));
-                    }
-                }
-            }
         }
     }
 }

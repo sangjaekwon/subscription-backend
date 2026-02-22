@@ -90,20 +90,21 @@ public class AuthService {
 
         mailService.sendVerifyMail(email, html);
 
-        redisTemplate.opsForValue().set("emailCode:" + email, String.valueOf(emailCode));
+        redisTemplate.opsForValue().set("emailCode:" + email, String.valueOf(emailCode), Duration.ofMinutes(5));
     }
 
     public void verifyEmailCode(String email, int code) {
         String key = "emailCode:" + email;
         String savedCode = redisTemplate.opsForValue().get(key);
 
-        if(savedCode == null) {
+        if (savedCode == null) {
             throw new ExpiredEmailCodeException();
         }
-        if(!savedCode.equals(String.valueOf(code))) {
+        if (!savedCode.equals(String.valueOf(code))) {
             throw new InvalidEmailCodeException();
         }
 
         redisTemplate.delete(key);
+        redisTemplate.opsForValue().set("email:verification:" + email, "true", Duration.ofMinutes(30));
     }
 }
