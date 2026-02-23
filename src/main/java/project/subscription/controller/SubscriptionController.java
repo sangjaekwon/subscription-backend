@@ -13,7 +13,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import project.subscription.dto.SubscriptionDto;
-import project.subscription.dto.request.SubscriptionDueRequest;
 import project.subscription.dto.response.CommonApiResponse;
 import project.subscription.dto.response.PageResponse;
 import project.subscription.service.SubscriptionService;
@@ -47,10 +46,10 @@ public class SubscriptionController {
     })
     @GetMapping("/due")
     public ResponseEntity<CommonApiResponse<PageResponse<SubscriptionDto>>> getSubscriptionDue(
-            @RequestBody SubscriptionDueRequest subscriptionDueRequest, Pageable pageable,
+            @RequestParam int day, Pageable pageable,
             @AuthenticationPrincipal(expression = "userId") Long userId) {
         return ResponseEntity.ok(CommonApiResponse.ok(
-                subscriptionService.findSubscriptionsDueSoon(userId, subscriptionDueRequest.getDay(), pageable)));
+                subscriptionService.findSubscriptionsDueSoon(userId, day, pageable)));
     }
 
     @Operation(summary = "구독 정보 저장")

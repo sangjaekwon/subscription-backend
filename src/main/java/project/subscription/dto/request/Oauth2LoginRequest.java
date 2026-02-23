@@ -1,9 +1,10 @@
 package project.subscription.dto.request;
 
+
 import lombok.Data;
 
 @Data
-public class SubscriptionDueRequest {
+public class Oauth2LoginRequest {
 
-    private int day;
+    private String code;
 }

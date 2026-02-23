@@ -14,6 +14,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import project.subscription.dto.CustomUserPrincipal;
 import project.subscription.dto.request.LoginRequest;
+import project.subscription.dto.request.Oauth2LoginRequest;
 import project.subscription.dto.response.LoginResponse;
 import project.subscription.exception.ex.*;
 import project.subscription.jwt.JwtUtil;
@@ -106,5 +107,17 @@ public class AuthService {
 
         redisTemplate.delete(key);
         redisTemplate.opsForValue().set("email:verification:" + email, "true", Duration.ofMinutes(30));
+    }
+
+    public LoginResponse loginOauth2(Oauth2LoginRequest loginRequest) {
+        String key = "oauth2:" + loginRequest.getCode();
+        String userId = redisTemplate.opsForValue().get(key);
+        if(userId == null) {
+            throw new InvalidOauth2CodeException();
+        }
+
+        redisTemplate.delete(key);
+
+        return createToken(userId);
     }
 }
