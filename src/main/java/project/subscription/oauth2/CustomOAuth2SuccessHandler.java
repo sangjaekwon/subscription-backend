@@ -27,6 +27,6 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         redisTemplate.opsForValue().set(
                 "oauth2:" + code, String.valueOf(user.getUserId()), Duration.ofSeconds(30L));
 
-        response.sendRedirect("http://구독관리서비스.site/oauth2?code=" + code);
+        response.sendRedirect("https://xn--zb0b0h61ozwg9lg1uep6c.sited/oauth2?code=" + code);
     }
 }
