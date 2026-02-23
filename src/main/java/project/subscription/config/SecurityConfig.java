@@ -21,6 +21,8 @@ import project.subscription.oauth2.CustomOAuth2SuccessHandler;
 import project.subscription.service.CustomOAuth2UserService;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -40,6 +42,7 @@ public class SecurityConfig {
 
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedOrigin("https://xn--zb0b0h61ozwg9lg1uep6c.site");
+        corsConfiguration.addAllowedOrigin("http://127.0.0.1:5500");
 
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
@@ -63,7 +66,7 @@ public class SecurityConfig {
                             .userInfoEndpoint(userInfo -> userInfo.userService(userService))
                             .successHandler(handler))
                 .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/api/auth/email/*", "/api/user/join", "/api/auth/login", "/swagger-ui/**",
+                        authorize.requestMatchers("/api/auth/reissue", "/api/auth/email/*", "/api/user/join", "/api/auth/login", "/swagger-ui/**",
                                 "/v3/api-docs/**", "/script/**", "/css/**").permitAll().anyRequest().authenticated());
                 // 나중에 swagger admin만 가능하게 수정하기
         return http.build();
@@ -92,7 +95,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/api/auth/email/*", "/api/user/join", "/api/auth/login", "/swagger-ui/**",
+                        authorize.requestMatchers("/api/auth/reissue", "/api/auth/email/*", "/api/user/join", "/api/auth/login", "/swagger-ui/**",
                                 "/v3/api-docs/**", "/script/**", "/css/**").permitAll().anyRequest().authenticated());
         return http.build();
     }

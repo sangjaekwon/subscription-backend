@@ -52,7 +52,6 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "토큰 재발급 성공"),
             @ApiResponse(responseCode = "401", description = "재발급 실패, 재로그인 필요")
     })
-    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/reissue")
     public ResponseEntity<CommonApiResponse<?>> reissue(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
