@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import project.subscription.dto.request.EmailRequest;
 import project.subscription.dto.request.LoginRequest;
+import project.subscription.dto.request.Oauth2LoginRequest;
 import project.subscription.dto.request.VerifyEmailCodeRequest;
 import project.subscription.dto.response.CommonApiResponse;
 import project.subscription.dto.response.LoginResponse;
@@ -41,15 +42,7 @@ public class AuthController {
     public ResponseEntity<CommonApiResponse<?>> login(@RequestBody @Validated LoginRequest loginRequest, HttpServletResponse response) {
         LoginResponse token = authService.login(loginRequest);
 
-        response.setHeader(HttpHeaders.SET_COOKIE,
-                ResponseCookie.from("refresh", token.getRefreshToken())
-                        .httpOnly(true)
-                        .secure(true)
-                        .sameSite("Strict")
-                        .path("/")
-                        .maxAge(Duration.ofDays(14))
-                        .build().toString()
-        );
+        createRereshCookie(response, token);
 
         return ResponseEntity.ok(CommonApiResponse.ok(token));
     }
@@ -77,15 +70,7 @@ public class AuthController {
 
         LoginResponse reissue = authService.reissue(token);
 
-        response.setHeader(HttpHeaders.SET_COOKIE,
-                ResponseCookie.from("refresh", reissue.getRefreshToken())
-                        .httpOnly(true)
-                        .secure(true)
-                        .sameSite("Strict")
-                        .path("/")
-                        .maxAge(Duration.ofDays(14))
-                        .build().toString()
-        );
+        createRereshCookie(response, reissue);
 
         return ResponseEntity.ok(CommonApiResponse.ok(reissue));
     }
@@ -130,6 +115,30 @@ public class AuthController {
         authService.createEmailCode(emailRequest.getEmail());
 
         return ResponseEntity.ok(CommonApiResponse.ok(null));
+    }
+
+    @Operation(summary = "Oauth2 로그인 이후 토큰 발급 API")
+    @PostMapping("/oauth2/login")
+    public ResponseEntity<CommonApiResponse<LoginResponse>> loginOauth2(@RequestBody Oauth2LoginRequest loginRequest, HttpServletResponse response) {
+
+        LoginResponse loginResponse = authService.loginOauth2(loginRequest);
+
+        createRereshCookie(response, loginResponse);
+
+        return ResponseEntity.ok(CommonApiResponse.ok(loginResponse));
+    }
+
+
+    private  void createRereshCookie(HttpServletResponse response, LoginResponse reissue) {
+        response.setHeader(HttpHeaders.SET_COOKIE,
+                ResponseCookie.from("refresh", reissue.getRefreshToken())
+                        .httpOnly(true)
+                        .secure(true)
+                        .sameSite("Strict")
+                        .path("/")
+                        .maxAge(Duration.ofDays(14))
+                        .build().toString()
+        );
     }
 
 }

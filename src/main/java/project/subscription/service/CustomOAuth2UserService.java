@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import project.subscription.dto.CustomUserPrincipal;
 import project.subscription.entity.User;
 import project.subscription.oauth2.GoogleResponse;
+import project.subscription.oauth2.KakaoResponse;
 import project.subscription.oauth2.NaverResponse;
 import project.subscription.oauth2.OAuth2Response;
 import project.subscription.repository.UserRepository;
@@ -46,7 +47,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return switch (provider) {
             case "naver" -> new NaverResponse(data);
             case "google" -> new GoogleResponse(data);
-            default -> throw new RuntimeException("provider를 찾을 수 없습니다.");
+            case "kakao" -> new KakaoResponse(data);
+            default -> null;
         };
     }
 }

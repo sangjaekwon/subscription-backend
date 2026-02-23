@@ -36,5 +36,10 @@ public class AuthExceptionHandler {
         return ResponseEntity.status(401).body(CommonApiResponse.error(e.getMessage()));
     }
 
+    @ExceptionHandler(InvalidOauth2CodeException.class)
+    public ResponseEntity<CommonApiResponse<?>> invalidOauth2CodeException(InvalidOauth2CodeException e) {
+        return ResponseEntity.status(401).body(CommonApiResponse.error(e.getMessage()));
+    }
+
 
 }
