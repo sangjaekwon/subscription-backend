@@ -95,8 +95,9 @@ class SubscriptionServiceTest {
 
         //when
         subscriptionDto.setName("넷퓰릭스");
+        subscriptionDto.setId(subscription.getId());
         subscriptionDto.setDday(BASE_DATE.plusDays(1));
-        subscriptionService.updateSubscription(subscriptionDto, user.getId(), subscription.getId());
+        subscriptionService.updateSubscription(subscriptionDto, user.getId());
 
         Subscription updatedSubscription = subscriptionRepository.findByUser(user).getFirst();
 
@@ -116,8 +117,11 @@ class SubscriptionServiceTest {
         User user = createUser();
         SubscriptionDto subscriptionDto = getSubscriptionDto();
 
+        //when
+        subscriptionDto.setId(99999999999L);
+
         //then
-        assertThatThrownBy(() -> subscriptionService.updateSubscription(subscriptionDto, user.getId(), 99999999999L))
+        assertThatThrownBy(() -> subscriptionService.updateSubscription(subscriptionDto, user.getId()))
                 .isInstanceOf(SubscriptionNotFoundException.class);
     }
 

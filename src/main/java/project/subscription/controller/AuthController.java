@@ -39,7 +39,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "로그인 실패"),
     })
     @PostMapping("/login")
-    public ResponseEntity<CommonApiResponse<?>> login(@RequestBody @Validated LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<CommonApiResponse<LoginResponse>> login(@RequestBody @Validated LoginRequest loginRequest, HttpServletResponse response) {
         LoginResponse token = authService.login(loginRequest);
 
         createRereshCookie(response, token);
@@ -57,7 +57,7 @@ public class AuthController {
         Cookie[] cookies = request.getCookies();
         String token = null;
         if (cookies == null)
-            return ResponseEntity.badRequest().body(CommonApiResponse.error("Refresh 토큰이 없습니다. 다시 로그인 해 주세요."));
+            return ResponseEntity.status(401).body(CommonApiResponse.error("Refresh 토큰이 없습니다. 다시 로그인 해 주세요."));
 
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals("refresh")) {
@@ -65,7 +65,7 @@ public class AuthController {
             }
         }
         if (token == null)
-            return ResponseEntity.badRequest().body(CommonApiResponse.error("Refresh 토큰이 없습니다. 다시 로그인 해 주세요."));
+            return ResponseEntity.status(401).body(CommonApiResponse.error("Refresh 토큰이 없습니다. 다시 로그인 해 주세요."));
 
         LoginResponse reissue = authService.reissue(token);
 

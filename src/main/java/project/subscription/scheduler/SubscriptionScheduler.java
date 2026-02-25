@@ -18,12 +18,12 @@ public class SubscriptionScheduler {
     private final AlarmService alarmService;
     private final SubscriptionService subscriptionService;
 
-    @Scheduled(cron = "0 0 9 * * *")
+    @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
     public void sendSbubscriptionalarms() {
         alarmService.processAlarm(LocalDate.now());
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     public void updateSubscriptionsForNextCycle() {
         subscriptionService.refreshSubscriptionCycle();
     }
