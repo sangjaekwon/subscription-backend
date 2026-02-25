@@ -66,7 +66,7 @@ public class SecurityConfig {
                             .userInfoEndpoint(userInfo -> userInfo.userService(userService))
                             .successHandler(handler))
                 .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/api/auth/reissue", "/api/auth/email/*", "/api/user/join", "/api/auth/login", "/swagger-ui/**",
+                        authorize.requestMatchers("/api/auth/oauth2/login", "/api/auth/reissue", "/api/auth/email/*", "/api/user/join", "/api/auth/login", "/swagger-ui/**",
                                 "/v3/api-docs/**", "/script/**", "/css/**").permitAll().anyRequest().authenticated());
                 // 나중에 swagger admin만 가능하게 수정하기
         return http.build();
