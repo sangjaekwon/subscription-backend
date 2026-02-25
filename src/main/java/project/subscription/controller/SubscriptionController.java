@@ -86,7 +86,7 @@ public class SubscriptionController {
     })
     @PutMapping
     public ResponseEntity<CommonApiResponse<List<?>>> updateSubscription
-            (@RequestBody SubscriptionDto subscriptionDto,
+            (@RequestBody @Validated SubscriptionDto subscriptionDto,
              @AuthenticationPrincipal(expression = "userId") Long userId) {
         subscriptionService.updateSubscription(subscriptionDto, userId);
         return ResponseEntity.ok(CommonApiResponse.ok(null));

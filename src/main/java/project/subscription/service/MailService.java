@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import project.subscription.aop.annotation.Retry;
 import project.subscription.exception.ex.MailSendException;
 
 @Service
@@ -13,12 +14,14 @@ public class MailService {
 
     private final JavaMailSender mailSender;
 
+    @Retry(5)
     public void sendMail(String to, String html, String subject) {
         MimeMessage message = getMimeMessage(to, html, subject);
 
         mailSender.send(message);
     }
 
+    @Retry(5)
     public void sendVerifyMail(String to, String html) {
         MimeMessage message = getMimeMessage(to, html, "구독관리서비스.site 이메일 인증 안내");
 

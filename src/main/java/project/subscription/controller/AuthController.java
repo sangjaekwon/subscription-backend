@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import project.subscription.aop.annotation.Retry;
 import project.subscription.dto.request.EmailRequest;
 import project.subscription.dto.request.LoginRequest;
 import project.subscription.dto.request.Oauth2LoginRequest;
@@ -33,6 +34,8 @@ public class AuthController {
 
     private final AuthService authService;
 
+
+    @Retry(2)
     @Operation(summary = "로그인 API")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "로그인 성공, JWT 토큰 발급, Refresh토큰은 쿠키에 등록하므로 credential 설정 필수"),
@@ -49,7 +52,7 @@ public class AuthController {
 
     @Operation(summary = "Access 토큰 재발급 API")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "토큰 재발급 성공"),
+            @ApiResponse(responseCode = "200", description = "토큰 재발급 성공, Refresh토큰은 쿠키에 등록하므로 credential 설정 필수"),
             @ApiResponse(responseCode = "401", description = "재발급 실패, 재로그인 필요")
     })
     @PostMapping("/reissue")
@@ -116,6 +119,10 @@ public class AuthController {
         return ResponseEntity.ok(CommonApiResponse.ok(null));
     }
 
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "토큰 발급 성공, Refresh토큰은 쿠키에 등록하므로 credential 설정 필수"),
+            @ApiResponse(responseCode = "401", description = "토큰이 유효하지 않습니다.")
+    })
     @Operation(summary = "Oauth2 로그인 이후 토큰 발급 API")
     @PostMapping("/oauth2/login")
     public ResponseEntity<CommonApiResponse<LoginResponse>> loginOauth2(@RequestBody Oauth2LoginRequest loginRequest, HttpServletResponse response) {
