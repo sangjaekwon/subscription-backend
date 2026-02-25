@@ -62,7 +62,10 @@ public class SubscriptionService {
         }
 
         List<Integer> alarmList = subscriptionDto.getAlarm();
-        Set<LocalDate> alarm = calculateAlarms(alarmList, nextPaymentDay);
+        Set<LocalDate> alarm = null;
+        if(alarmList.getFirst() != 0) {
+            alarm = calculateAlarms(alarmList, nextPaymentDay);
+        }
 
         Subscription subscription = new Subscription(subscriptionDto.getCategory(), subscriptionDto.getName(),
                 subscriptionDto.getPaymentCycle(), subscriptionDto.getCycleInterval(), nextPaymentDay, subscriptionDto.getPrice(),
@@ -72,8 +75,8 @@ public class SubscriptionService {
     }
 
 
-    public void updateSubscription(SubscriptionDto subscriptionDto, Long userId, Long subscriptionId) {
-        Subscription subscription = subscriptionRepository.findById(subscriptionId).orElseThrow(SubscriptionNotFoundException::new);
+    public void updateSubscription(SubscriptionDto subscriptionDto, Long userId) {
+        Subscription subscription = subscriptionRepository.findById(subscriptionDto.getId()).orElseThrow(SubscriptionNotFoundException::new);
 
         if (!subscription.getUser().getId().equals(userId)) throw new AccessDeniedException("해당 구독 정보에 접근할 수 없습니다.");
 
@@ -85,7 +88,10 @@ public class SubscriptionService {
         }
 
         List<Integer> alarmList = subscriptionDto.getAlarm();
-        Set<LocalDate> alarm = calculateAlarms(alarmList, nextPaymentDay);
+        Set<LocalDate> alarm = null;
+        if(alarmList.getFirst() != 0) {
+            alarm = calculateAlarms(alarmList, nextPaymentDay);
+        }
 
         subscription.updateSubscription(subscriptionDto.getCategory(), subscriptionDto.getName(),
                 subscriptionDto.getPaymentCycle(), subscriptionDto.getCycleInterval(), nextPaymentDay, subscriptionDto.getPrice(),
