@@ -42,6 +42,7 @@ public class SecurityConfig {
 
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedOrigin("https://xn--zb0b0h61ozwg9lg1uep6c.site");
+        corsConfiguration.addAllowedOrigin("https://www.xn--zb0b0h61ozwg9lg1uep6c.site");
         corsConfiguration.addAllowedOrigin("http://127.0.0.1:5500");
 
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
@@ -66,7 +67,7 @@ public class SecurityConfig {
                             .userInfoEndpoint(userInfo -> userInfo.userService(userService))
                             .successHandler(handler))
                 .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/api/auth/oauth2/login", "/api/auth/reissue", "/api/auth/email/*", "/api/user/join", "/api/auth/login", "/swagger-ui/**",
+                        authorize.requestMatchers("/**", "/api/auth/oauth2/login", "/api/auth/reissue", "/api/auth/email/*", "/api/user/join", "/api/auth/login", "/swagger-ui/**",
                                 "/v3/api-docs/**", "/script/**", "/css/**").permitAll().anyRequest().authenticated());
                 // 나중에 swagger admin만 가능하게 수정하기
         return http.build();
