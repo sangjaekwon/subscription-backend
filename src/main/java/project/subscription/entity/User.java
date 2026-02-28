@@ -35,6 +35,9 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Subscription> subscriptionList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PaymentHistory> paymentHistoryList = new ArrayList<>();
+
     public static User createLocalUser(String username, String email, String password, String role) {
         User user = new User();
         user.username = username;
@@ -66,5 +69,15 @@ public class User extends BaseTimeEntity {
     public void addSubscription(Subscription subscription) {
         subscriptionList.add(subscription);
         subscription.changeUser(this);
+    }
+
+    public void addPaymentHistory(PaymentHistory paymentHistory) {
+        paymentHistoryList.add(paymentHistory);
+        paymentHistory.changeUser(this);
+    }
+
+    public void removePaymentHistory(PaymentHistory paymentHistory) {
+        paymentHistoryList.remove(paymentHistory);
+        paymentHistory.changeUser(null);
     }
 }

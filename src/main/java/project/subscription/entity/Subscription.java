@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -39,6 +40,8 @@ public class Subscription extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToOne(mappedBy = "subscription", cascade = CascadeType.ALL, orphanRemoval = true)
+    private PaymentHistory paymentHistory;
 
     public Subscription(String category, String name, CycleType paymentCycle, Integer cycleInterval,
                         LocalDate dday, Integer price, List<Integer> alarm, Set<LocalDate> alarmDate) {
@@ -72,5 +75,10 @@ public class Subscription extends BaseTimeEntity {
     public void refreshPaymentDay(LocalDate dday, Set<LocalDate> alarmDate) {
         this.dday = dday;
         this.alarmDate = alarmDate;
+    }
+
+    public void addPaymentHistory(PaymentHistory paymentHistory) {
+        this.paymentHistory = paymentHistory;
+        paymentHistory.changeSubscription(this);
     }
 }
