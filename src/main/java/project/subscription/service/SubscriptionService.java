@@ -8,11 +8,14 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import project.subscription.dto.SubscriptionDto;
+import project.subscription.dto.request.SubscriptionSearchCondition;
 import project.subscription.dto.response.PageResponse;
+import project.subscription.entity.PaymentHistory;
 import project.subscription.entity.Subscription;
 import project.subscription.entity.User;
 import project.subscription.exception.ex.SubscriptionNotFoundException;
 import project.subscription.exception.ex.UserNotFoundException;
+import project.subscription.repository.PaymentHistoryRepository;
 import project.subscription.repository.SubscriptionRepository;
 import project.subscription.repository.UserRepository;
 
@@ -28,6 +31,7 @@ public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
     private final UserRepository userRepository;
+    private final PaymentHistoryRepository paymentHistoryRepository;
 
 
     @Transactional(readOnly = true)
@@ -46,6 +50,16 @@ public class SubscriptionService {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         Page<SubscriptionDto> page = subscriptionRepository.findPageSubscriptions(user, pageable);
+
+        return new PageResponse<>(page.getContent(), page.getTotalElements(), page.getTotalPages(),
+                page.getPageable().getPageSize(), page.getPageable().getPageNumber(), page.getNumberOfElements());
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<SubscriptionDto> findFilterSubscriptions(Long userId, SubscriptionSearchCondition searchCondition, Pageable pageable) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+        Page<SubscriptionDto> page = subscriptionRepository.searchPageSubscriptionsByCondition(user, searchCondition, pageable);
 
         return new PageResponse<>(page.getContent(), page.getTotalElements(), page.getTotalPages(),
                 page.getPageable().getPageSize(), page.getPageable().getPageNumber(), page.getNumberOfElements());
@@ -71,15 +85,20 @@ public class SubscriptionService {
                 subscriptionDto.getPaymentCycle(), subscriptionDto.getCycleInterval(), nextPaymentDay, subscriptionDto.getPrice(),
                 subscriptionDto.getAlarm(), alarm);
 
+        PaymentHistory paymentHistory = new PaymentHistory(subscriptionDto.getPrice(), nextPaymentDay.getMonthValue());
+
         user.addSubscription(subscription);
+        user.addPaymentHistory(paymentHistory);
+        subscription.addPaymentHistory(paymentHistory);
     }
 
 
     public void updateSubscription(SubscriptionDto subscriptionDto, Long userId) {
         Subscription subscription = subscriptionRepository.findById(subscriptionDto.getId()).orElseThrow(SubscriptionNotFoundException::new);
 
-        if (!subscription.getUser().getId().equals(userId)) throw new AccessDeniedException("해당 구독 정보에 접근할 수 없습니다.");
-
+        User user = subscription.getUser();
+        if (!user.getId().equals(userId)) throw new AccessDeniedException("해당 구독 정보에 접근할 수 없습니다.");
+        PaymentHistory paymentHistory = paymentHistoryRepository.findByUserAndSubscription(user, subscription);
 
         LocalDate nextPaymentDay = subscriptionDto.getDday();
         while (!nextPaymentDay.isAfter(LocalDate.now())) {
@@ -96,15 +115,19 @@ public class SubscriptionService {
         subscription.updateSubscription(subscriptionDto.getCategory(), subscriptionDto.getName(),
                 subscriptionDto.getPaymentCycle(), subscriptionDto.getCycleInterval(), nextPaymentDay, subscriptionDto.getPrice(),
                 subscriptionDto.getAlarm(), alarm);
+
+        paymentHistory.updatePaymentHistory(subscriptionDto.getPrice(), nextPaymentDay.getMonthValue());
+
     }
 
 
     public void deleteSubscription(Long userId, Long subscriptionId) {
         Subscription subscription = subscriptionRepository.findById(subscriptionId).orElseThrow(SubscriptionNotFoundException::new);
-
-        if (!subscription.getUser().getId().equals(userId)) throw new AccessDeniedException("해당 구독 정보에 접근할 수 없습니다.");
-
         User user = subscription.getUser();
+        if (!user.getId().equals(userId)) throw new AccessDeniedException("해당 구독 정보에 접근할 수 없습니다.");
+        PaymentHistory paymentHistory = paymentHistoryRepository.findByUserAndSubscription(user, subscription);
+
+        user.removePaymentHistory(paymentHistory);
         user.removeSubscription(subscription);
 
     }

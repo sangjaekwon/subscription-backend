@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import project.subscription.dto.SubscriptionDto;
+import project.subscription.dto.request.SubscriptionSearchCondition;
 import project.subscription.dto.response.CommonApiResponse;
 import project.subscription.dto.response.PageResponse;
 import project.subscription.service.SubscriptionService;
@@ -31,7 +32,8 @@ public class SubscriptionController {
     @Operation(summary = "구독 목록 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "구독 목록 조회 성공"),
-            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.")
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "401", description = "Access 토큰이 유효하지 않습니다.")
     })
     @GetMapping
     public ResponseEntity<CommonApiResponse<PageResponse<SubscriptionDto>>> getSubscription(
@@ -39,10 +41,23 @@ public class SubscriptionController {
         return ResponseEntity.ok(CommonApiResponse.ok(subscriptionService.findSubscriptions(userId, pageable)));
     }
 
+    @Operation(summary = "구독 목록 조회 필터링")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "구독 목록 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "401", description = "Access 토큰이 유효하지 않습니다.")
+    })
+    @GetMapping("/filter")
+    public ResponseEntity<CommonApiResponse<PageResponse<SubscriptionDto>>> getSubscription(
+            @AuthenticationPrincipal(expression = "userId") Long userId, @RequestParam SubscriptionSearchCondition searchCondition, Pageable pageable) {
+        return ResponseEntity.ok(CommonApiResponse.ok(subscriptionService.findFilterSubscriptions(userId, searchCondition, pageable)));
+    }
+
     @Operation(summary = "결제 기간 임박 구독 목록 조회", description = "결제일 기준 day일전 구독 목록 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "결제일 기반 구독 목록 조회 성공"),
-            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.")
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "401", description = "Access 토큰이 유효하지 않습니다.")
     })
     @GetMapping("/due")
     public ResponseEntity<CommonApiResponse<PageResponse<SubscriptionDto>>> getSubscriptionDue(
@@ -55,7 +70,8 @@ public class SubscriptionController {
     @Operation(summary = "구독 정보 저장")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "구독 정보 저장 성공"),
-            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다.")
+            @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "401", description = "Access 토큰이 유효하지 않습니다.")
     })
     @PostMapping
     public ResponseEntity<CommonApiResponse<?>> saveSubscription(
@@ -70,7 +86,8 @@ public class SubscriptionController {
     @Operation(summary = "구독 정보 삭제")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "구독 정보 삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "구독 정보를 찾을 수 없습니다.")
+            @ApiResponse(responseCode = "404", description = "구독 정보를 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "401", description = "Access 토큰이 유효하지 않습니다.")
     })
     @DeleteMapping
     public ResponseEntity<CommonApiResponse<List<?>>> deleteSubscription
@@ -82,7 +99,8 @@ public class SubscriptionController {
     @Operation(summary = "구독 정보 수정")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "구독 정보 수정 성공"),
-            @ApiResponse(responseCode = "404", description = "구독 혹은 유저 정보를 찾을 수 없습니다.")
+            @ApiResponse(responseCode = "404", description = "구독 혹은 유저 정보를 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "401", description = "Access 토큰이 유효하지 않습니다.")
     })
     @PutMapping
     public ResponseEntity<CommonApiResponse<List<?>>> updateSubscription

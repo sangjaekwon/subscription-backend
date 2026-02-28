@@ -4,12 +4,16 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import project.subscription.dto.SubscriptionDto;
+import project.subscription.dto.request.SubscriptionSearchCondition;
+import project.subscription.dto.request.SubscriptionSortType;
 import project.subscription.dto.response.PageResponse;
 import project.subscription.entity.CycleType;
+import project.subscription.entity.PaymentHistory;
 import project.subscription.entity.Subscription;
 import project.subscription.entity.User;
 import project.subscription.exception.ex.SubscriptionNotFoundException;
@@ -86,12 +90,15 @@ class SubscriptionServiceTest {
         user.addSubscription(subscription);
         SubscriptionDto subscriptionDto = getSubscriptionDto();
 
+
         LocalDate nextPaymentDay = subscriptionDto.getDday();
         while (!nextPaymentDay.isAfter(LocalDate.now())) {
             nextPaymentDay = subscriptionDto.getPaymentCycle().plus
                     (nextPaymentDay, subscriptionDto.getCycleInterval());
         }
-
+        PaymentHistory paymentHistory = new PaymentHistory(subscription.getPrice(), nextPaymentDay.getMonthValue());
+        user.addPaymentHistory(paymentHistory);
+        subscription.addPaymentHistory(paymentHistory);
 
         //when
         subscriptionDto.setName("넷퓰릭스");
@@ -167,7 +174,10 @@ class SubscriptionServiceTest {
         //given
         User user = createUser();
         Subscription subscription = getSubscription();
+        PaymentHistory paymentHistory = new PaymentHistory(subscription.getPrice(), subscription.getDday().getMonthValue());
         user.addSubscription(subscription);
+        user.addPaymentHistory(paymentHistory);
+        subscription.addPaymentHistory(paymentHistory);
         em.flush();
         em.clear();
 
@@ -227,20 +237,66 @@ class SubscriptionServiceTest {
                 .isInstanceOf(UserNotFoundException.class);
     }
 
-    private User createUser() {
-        return userRepository.save(User.createLocalUser(UUID.randomUUID().toString(), "sjsj00718@gmail.com", "abc123!", "ROLE_USER"));
+    @Test
+    public void 구독_조회_필터링_정상() throws Exception {
+        //given
+        User user = createUser();
+        Subscription subscription = getSubscription();
+        Subscription subscription2 = subscriptionRepository.save(new Subscription(
+                "Netfilx", "넷플릭스", CycleType.MONTH, 1, LocalDate.now(), 7000,
+                List.of(1, 2, 3), Set.of(
+                BASE_DATE.plusMonths(1).minusDays(1),
+                BASE_DATE.plusMonths(1).minusDays(2),
+                BASE_DATE.plusMonths(1).minusDays(3))
+        ));
+        Subscription subscription3 = subscriptionRepository.save(new Subscription(
+                "Netfilx", "abc", CycleType.MONTH, 1, LocalDate.now(), 10000,
+                List.of(1, 2, 3), Set.of(
+                BASE_DATE.plusMonths(1).minusDays(1),
+                BASE_DATE.plusMonths(1).minusDays(2),
+                BASE_DATE.plusMonths(1).minusDays(3))
+        ));
+        user.addSubscription(subscription);
+        user.addSubscription(subscription2);
+        SubscriptionSearchCondition subscriptionSearchCondition = new SubscriptionSearchCondition();
+        subscriptionSearchCondition.setSubscriptionName("넷플릭스");
+        subscriptionSearchCondition.setSortType(SubscriptionSortType.PRICE_DESC);
+
+        //when
+        Page<SubscriptionDto> subscriptionDtos = subscriptionRepository.searchPageSubscriptionsByCondition(user, subscriptionSearchCondition, PageRequest.of(0, 5));
+
+
+        //then
+        assertThat(subscriptionDtos.getContent().getFirst().getPrice()).isEqualTo(subscription2.getPrice());
+        assertThat(subscriptionDtos.getContent().size()).isEqualTo(2);
+
     }
 
     @Test
     public void 결제_주기_및_알람_리프레시_정상() throws Exception {
         //given
-
+        Subscription subscription = getSubscription();
+        Subscription subscription2 = subscriptionRepository.save(new Subscription(
+                "Netfilx", "abc", CycleType.MONTH, 1, LocalDate.now(), 5000,
+                List.of(1, 2, 3), Set.of(
+                BASE_DATE.plusMonths(1).minusDays(1),
+                BASE_DATE.plusMonths(1).minusDays(2),
+                BASE_DATE.plusMonths(1).minusDays(3))
+        ));
 
         //when
+        subscriptionService.refreshSubscriptionCycle();
+        em.flush();
+        em.clear();
 
+        Subscription subscriptions = subscriptionRepository.findById(subscription2.getId()).get();
 
         //then
+        assertThat(subscriptions.getDday()).isEqualTo(LocalDate.now().plusMonths(1));
+    }
 
+    private User createUser() {
+        return userRepository.save(User.createLocalUser(UUID.randomUUID().toString(), "sjsj00718@gmail.com", "abc123!", "ROLE_USER"));
     }
 
     private Subscription getSubscription() {

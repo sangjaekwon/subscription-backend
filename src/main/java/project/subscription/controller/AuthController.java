@@ -79,7 +79,10 @@ public class AuthController {
 
     @Operation(summary = "로그아웃 API")
     @SecurityRequirement(name = "bearerAuth")
-    @ApiResponse(responseCode = "204", description = "NO_CONTENT")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "NO_CONTENT"),
+            @ApiResponse(responseCode = "401", description = "Access 토큰이 유효하지 않습니다.")
+    })
     @PostMapping("/logout")
     public ResponseEntity<CommonApiResponse<?>> logout(@AuthenticationPrincipal(expression = "username") String username,
                                                        HttpServletResponse response) {
