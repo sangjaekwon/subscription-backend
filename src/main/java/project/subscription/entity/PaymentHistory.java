@@ -23,8 +23,8 @@ public class PaymentHistory extends BaseTimeEntity{
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subscription_Id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subscription_id", unique = true)
     private Subscription subscription;
 
     private Integer price;
