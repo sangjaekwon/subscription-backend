@@ -29,8 +29,7 @@ https://구독관리서비스.site/swagger-ui/index.html
 - **Language** : Java 21
 - **Backend** : Spring Boot 4.0.2, Spring Security, Spring Data JPA  
 - **Auth** : JWT, OAuth2  
-- **Database** : MySQL  
-- **Cache** : Redis  
+- **Database** : MySQL, Redis  
 - **Reverse Proxy** : Nginx  
 - **Monitoring** : Prometheus, Grafana  
 - **AI** : Gemini API  
