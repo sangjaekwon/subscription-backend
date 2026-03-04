@@ -34,15 +34,20 @@ public class SubscriptionQueryRepositoryImpl implements SubscriptionQueryReposit
 
     public Page<SubscriptionDto> searchPageSubscriptionsByCondition(User user, SubscriptionSearchCondition condition,
                                                                     Pageable pageable) {
-        List<SubscriptionDto> result = queryFactory
+        JPAQuery<SubscriptionDto> query = queryFactory
                 .select(constructor(SubscriptionDto.class, subscription))
                 .from(subscription)
                 .where(subscription.user.eq(user), nameEq(condition.getSubscriptionName()))
-                .orderBy(sortSub(condition.getSortType()))
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+                .limit(pageable.getPageSize());
 
+        OrderSpecifier<?> order = sortSub(condition.getSortType());
+
+        if (order != null) {
+            query.orderBy(order);
+        }
+
+        List<SubscriptionDto> result = query.fetch();
         JPAQuery<Long> countQuery = queryFactory
                 .select(subscription.count())
                 .from(subscription)

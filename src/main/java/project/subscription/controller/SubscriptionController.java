@@ -38,7 +38,7 @@ public class SubscriptionController {
     @GetMapping
     public ResponseEntity<CommonApiResponse<PageResponse<SubscriptionDto>>> getSubscription(
             @AuthenticationPrincipal(expression = "userId") Long userId, Pageable pageable) {
-        return ResponseEntity.ok(CommonApiResponse.ok(subscriptionService.findSubscriptions(userId, pageable)));
+        return ResponseEntity.ok(CommonApiResponse.ok(subscriptionService.findPageSubscriptions(userId, pageable)));
     }
 
     @Operation(summary = "구독 목록 조회 필터링")
@@ -48,8 +48,8 @@ public class SubscriptionController {
             @ApiResponse(responseCode = "401", description = "Access 토큰이 유효하지 않습니다.")
     })
     @GetMapping("/filter")
-    public ResponseEntity<CommonApiResponse<PageResponse<SubscriptionDto>>> getSubscription(
-            @AuthenticationPrincipal(expression = "userId") Long userId, @RequestParam SubscriptionSearchCondition searchCondition, Pageable pageable) {
+    public ResponseEntity<CommonApiResponse<PageResponse<SubscriptionDto>>> getSubscriptionfilter(
+            @AuthenticationPrincipal(expression = "userId") Long userId, SubscriptionSearchCondition searchCondition, Pageable pageable) {
         return ResponseEntity.ok(CommonApiResponse.ok(subscriptionService.findFilterSubscriptions(userId, searchCondition, pageable)));
     }
 

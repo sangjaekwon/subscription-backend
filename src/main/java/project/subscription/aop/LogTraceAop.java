@@ -18,11 +18,11 @@ public class LogTraceAop {
 
     @Pointcut("!execution(* project.subscription.exception..*.*(..)) && !execution(* project.subscription.config..*.*(..))" +
             " && !execution(* project.subscription.jwt..*.*(..))" )
-    private void execlude(){}
+    private void exclude(){}
 
     private LogTrace logTrace = new LogTrace();
 
-    @Around("execution(* project.subscription..*.*(..)) && execlude()")
+    @Around("execution(* project.subscription..*.*(..)) && exclude()")
     public Object logTrace(ProceedingJoinPoint joinPoint) throws Throwable {
         Signature signature = joinPoint.getSignature();
         String methodName = signature.getName();

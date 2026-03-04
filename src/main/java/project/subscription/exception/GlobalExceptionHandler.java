@@ -38,10 +38,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CommonApiResponse<?>> accessDeniedException(AccessDeniedException e) {
         return ResponseEntity.status(403).body(CommonApiResponse.error(e.getMessage()));
     }
-    @ExceptionHandler(UnsupportedOperationException.class)
-    public ResponseEntity<CommonApiResponse<?>> unsupportedOperationException(UnsupportedOperationException e) {
-        return ResponseEntity.status(400).body(CommonApiResponse.error(e.getMessage()));
-    }
 
     @ExceptionHandler(MailSendException.class)
     public ResponseEntity<CommonApiResponse<?>> mailSendException(MailSendException e) {
