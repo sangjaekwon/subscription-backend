@@ -18,7 +18,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SubscriptionDto implements Serializable {
-//    private static final long serialVersionUID = 1L;
 
     private Long id;
     @NotEmpty(message = "카테고리를 선택해 주세요.")

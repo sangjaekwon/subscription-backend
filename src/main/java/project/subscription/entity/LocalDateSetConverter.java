@@ -5,6 +5,7 @@ import jakarta.persistence.AttributeConverter;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,7 @@ public class LocalDateSetConverter implements AttributeConverter<Set<LocalDate>,
         }
         // 대괄호 없이 "2003-07-17,2003-07-16" 형태로 변환
         return attribute.stream()
+                .sorted()
                 .map(LocalDate::toString)
                 .collect(Collectors.joining(","));
     }
@@ -27,6 +29,7 @@ public class LocalDateSetConverter implements AttributeConverter<Set<LocalDate>,
         }
         return Arrays.stream(dbData.split(","))
                 .map(LocalDate::parse)
-                .collect(Collectors.toSet());
+                .sorted()
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 }

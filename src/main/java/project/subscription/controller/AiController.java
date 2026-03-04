@@ -1,5 +1,7 @@
 package project.subscription.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +18,7 @@ import java.util.List;
 
 @Tag(name = "AI 분석 API")
 @RestController
+@SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/ai")
 public class AiController {
 
@@ -135,6 +138,7 @@ public class AiController {
     - 반드시 JSON만 반환
     """;
 
+    @Operation(summary = "AI 분석 API")
     @GetMapping
     public CommonApiResponse<AiResponse> aiResult(@AuthenticationPrincipal(expression = "userId") Long userId) {
 

@@ -40,8 +40,8 @@ public class Subscription extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(mappedBy = "subscription", cascade = CascadeType.ALL, orphanRemoval = true)
-    private PaymentHistory paymentHistory;
+    @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PaymentHistory> paymentHistory;
 
     public Subscription(String category, String name, CycleType paymentCycle, Integer cycleInterval,
                         LocalDate dday, Integer price, List<Integer> alarm, Set<LocalDate> alarmDate) {
@@ -78,7 +78,7 @@ public class Subscription extends BaseTimeEntity {
     }
 
     public void addPaymentHistory(PaymentHistory paymentHistory) {
-        this.paymentHistory = paymentHistory;
+        this.paymentHistory.add(paymentHistory);
         paymentHistory.changeSubscription(this);
     }
 }
