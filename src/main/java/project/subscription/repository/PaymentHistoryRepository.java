@@ -20,4 +20,6 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
     int countByPaymentMonth(User user, int month);
 
     PaymentHistory findByUserAndSubscription(User user, Subscription subscription);
+
+    void deleteByPaymentMonth(Integer paymentMonth);
 }

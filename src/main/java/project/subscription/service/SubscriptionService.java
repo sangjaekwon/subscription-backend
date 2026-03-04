@@ -46,7 +46,7 @@ public class SubscriptionService {
 
 
     @Transactional(readOnly = true)
-    public PageResponse<SubscriptionDto> findSubscriptions(Long userId, Pageable pageable) {
+    public PageResponse<SubscriptionDto> findPageSubscriptions(Long userId, Pageable pageable) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         Page<SubscriptionDto> page = subscriptionRepository.findPageSubscriptions(user, pageable);
@@ -54,6 +54,15 @@ public class SubscriptionService {
         return new PageResponse<>(page.getContent(), page.getTotalElements(), page.getTotalPages(),
                 page.getPageable().getPageSize(), page.getPageable().getPageNumber(), page.getNumberOfElements());
     }
+
+    @Transactional(readOnly = true)
+    public List<SubscriptionDto> findSubscriptions(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+
+        return subscriptionRepository.findByUser(user).stream().map(SubscriptionDto::new).toList();
+    }
+
 
     @Transactional(readOnly = true)
     public PageResponse<SubscriptionDto> findFilterSubscriptions(Long userId, SubscriptionSearchCondition searchCondition, Pageable pageable) {

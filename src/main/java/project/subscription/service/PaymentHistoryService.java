@@ -45,4 +45,9 @@ public class PaymentHistoryService {
         return paymentHistoryRepository.countByPaymentMonth(user, date.getMonthValue());
     }
 
+    @Transactional
+    public void deleteHistory(LocalDate date) {
+        paymentHistoryRepository.deleteByPaymentMonth(date.getMonthValue());
+    }
+
 }

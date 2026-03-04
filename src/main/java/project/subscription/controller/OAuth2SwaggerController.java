@@ -3,6 +3,7 @@ package project.subscription.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.coyote.BadRequestException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,8 +20,8 @@ public class OAuth2SwaggerController {
         """
     )
     @GetMapping("/oauth2/authorization/google")
-    public void googleLogin() {
-        throw new UnsupportedOperationException("Swagger 문서용 엔드포인트입니다.");
+    public void googleLogin() throws BadRequestException {
+        throw new BadRequestException("Swagger 문서용 엔드포인트입니다.");
     }
 
     @Operation(
@@ -32,7 +33,7 @@ public class OAuth2SwaggerController {
         """
     )
     @GetMapping("/oauth2/authorization/naver")
-    public void naverLogin() {
-        throw new UnsupportedOperationException("Swagger 문서용 엔드포인트입니다.");
+    public void naverLogin() throws BadRequestException {
+        throw new BadRequestException("Swagger 문서용 엔드포인트입니다.");
     }
 }

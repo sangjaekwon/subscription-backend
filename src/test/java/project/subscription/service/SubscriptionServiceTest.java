@@ -150,7 +150,7 @@ class SubscriptionServiceTest {
         //when
         PageRequest pageable = PageRequest.of(0, 3);
 
-        PageResponse<SubscriptionDto> subscriptionList = subscriptionService.findSubscriptions(user.getId(), pageable);
+        PageResponse<SubscriptionDto> subscriptionList = subscriptionService.findPageSubscriptions(user.getId(), pageable);
 
 
         //then
@@ -165,7 +165,7 @@ class SubscriptionServiceTest {
     public void 구독_조회_예외_존재하지않는유저() throws Exception {
         //then
         Pageable pageable = PageRequest.of(0, 5);
-        assertThatThrownBy(() -> subscriptionService.findSubscriptions(99999999999L, pageable))
+        assertThatThrownBy(() -> subscriptionService.findPageSubscriptions(99999999999L, pageable))
                 .isInstanceOf(UserNotFoundException.class);
     }
 
