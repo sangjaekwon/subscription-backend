@@ -37,7 +37,7 @@ public class SubscriptionQueryRepositoryImpl implements SubscriptionQueryReposit
         JPAQuery<SubscriptionDto> query = queryFactory
                 .select(constructor(SubscriptionDto.class, subscription))
                 .from(subscription)
-                .where(subscription.user.eq(user), nameEq(condition.getSubscriptionName()))
+                .where(subscription.user.eq(user), nameLike(condition.getSubscriptionName()))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
@@ -51,7 +51,7 @@ public class SubscriptionQueryRepositoryImpl implements SubscriptionQueryReposit
         JPAQuery<Long> countQuery = queryFactory
                 .select(subscription.count())
                 .from(subscription)
-                .where(subscription.user.eq(user), (nameEq(condition.getSubscriptionName())));
+                .where(subscription.user.eq(user), (nameLike(condition.getSubscriptionName())));
 
         return PageableExecutionUtils.getPage(result, pageable, countQuery::fetchOne);
     }
@@ -107,7 +107,7 @@ public class SubscriptionQueryRepositoryImpl implements SubscriptionQueryReposit
         };
     }
 
-    private BooleanExpression nameEq(String name) {
-        return StringUtils.hasText(name) ? subscription.name.eq(name) : null;
+    private BooleanExpression nameLike(String name) {
+        return StringUtils.hasText(name) ? subscription.name.like(name) : null;
     }
 }

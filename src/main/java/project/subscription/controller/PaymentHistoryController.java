@@ -1,6 +1,7 @@
 package project.subscription.controller;
 
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,6 +28,8 @@ public class PaymentHistoryController {
     private final PaymentHistoryService paymentHistoryService;
 
 
+
+    @Operation(summary = "이번 달 총 결제 금액")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "404", description = "유저 혹은 구독 정보를 찾을 수 없습니다."),
@@ -39,6 +42,7 @@ public class PaymentHistoryController {
         return CommonApiResponse.ok(paymentHistoryService.totalMoney(userId, date));
     }
 
+    @Operation(summary = "이번 달 총 결제 건 수")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "404", description = "유저 혹은 구독 정보를 찾을 수 없습니다."),

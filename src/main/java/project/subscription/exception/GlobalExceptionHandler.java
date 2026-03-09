@@ -19,9 +19,7 @@ public class GlobalExceptionHandler {
                 .getFieldError()
                 .getDefaultMessage();
 
-        return ResponseEntity
-                .badRequest()
-                .body(CommonApiResponse.error(message));
+        return ResponseEntity.status(400).body(CommonApiResponse.error(message));
     }
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -43,5 +41,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CommonApiResponse<?>> mailSendException(MailSendException e) {
         return ResponseEntity.status(503).body(CommonApiResponse.error(e.getMessage()));
     }
+
+
 
 }

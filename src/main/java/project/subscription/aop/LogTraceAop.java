@@ -17,7 +17,7 @@ import project.subscription.log.TraceStatus;
 public class LogTraceAop {
 
     @Pointcut("!execution(* project.subscription.exception..*.*(..)) && !execution(* project.subscription.config..*.*(..))" +
-            " && !execution(* project.subscription.jwt..*.*(..))" )
+            " && !execution(* project.subscription.jwt..*.*(..)) && !execution(* project.subscription.entity..*.*(..))" )
     private void exclude(){}
 
     private LogTrace logTrace = new LogTrace();
