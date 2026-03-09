@@ -25,7 +25,7 @@ public class KakaoResponse implements OAuth2Response {
 
     @Override
     public String getProvider() {
-        return "naver";
+        return "kakao";
     }
 
     @Override
