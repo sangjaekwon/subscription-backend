@@ -67,7 +67,8 @@ public class SecurityConfig {
                             .userInfoEndpoint(userInfo -> userInfo.userService(userService))
                             .successHandler(handler))
                 .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/api/auth/oauth2/login", "/api/auth/reissue",
+                        authorize.requestMatchers("/actuator/prometheus", "/actuator/health", "/actuator/info",
+                                "/api/auth/oauth2/login", "/api/auth/reissue",
                                 "/api/auth/email/*", "/api/user/join", "/api/auth/login", "/swagger-ui/**",
                                 "/v3/api-docs/**").permitAll().anyRequest().authenticated());
         return http.build();
