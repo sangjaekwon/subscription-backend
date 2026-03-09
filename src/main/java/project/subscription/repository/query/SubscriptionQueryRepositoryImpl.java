@@ -108,6 +108,6 @@ public class SubscriptionQueryRepositoryImpl implements SubscriptionQueryReposit
     }
 
     private BooleanExpression nameLike(String name) {
-        return StringUtils.hasText(name) ? subscription.name.like(name) : null;
+        return StringUtils.hasText(name) ? subscription.name.like(name+"%") : null;
     }
 }
