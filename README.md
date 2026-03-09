@@ -28,9 +28,9 @@ https://구독관리서비스.site/swagger-ui/index.html
 ---
 
 ## 모니터링(그라파나)
-https://구독관리서비스.site/monitor/grafana
- id: admin
- pw: admin
+https://구독관리서비스.site/monitor/grafana  
+id: admin  
+pw: admin  
 
 ---
 
