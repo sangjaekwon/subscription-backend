@@ -41,7 +41,7 @@ public class Subscription extends BaseTimeEntity {
     private User user;
 
     @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PaymentHistory> paymentHistory;
+    private List<PaymentHistory> paymentHistory = new ArrayList<>();
 
     public Subscription(String category, String name, CycleType paymentCycle, Integer cycleInterval,
                         LocalDate dday, Integer price, List<Integer> alarm, Set<LocalDate> alarmDate) {
