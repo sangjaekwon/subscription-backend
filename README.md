@@ -27,6 +27,13 @@ https://구독관리서비스.site/swagger-ui/index.html
 
 ---
 
+## 모니터링(그라파나)
+https://구독관리서비스.site/monitor/grafana
+id: admin
+pw: admin
+
+---
+
 ## 기술 스택
 - **Language** : Java 21
 - **Backend** : Spring Boot 4.0.2, Spring Security, Spring Data JPA  
