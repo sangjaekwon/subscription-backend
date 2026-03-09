@@ -21,7 +21,7 @@ public class SubscriptionScheduler {
     private final PaymentHistoryService paymentHistoryService;
 
     @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
-    public void sendSbubscriptionalarms() {
+    public void sendSubscriptionalarms() {
         alarmService.processAlarm(LocalDate.now());
     }
 

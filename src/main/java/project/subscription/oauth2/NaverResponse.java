@@ -12,7 +12,7 @@ public class NaverResponse implements OAuth2Response {
 
     @Override
     public String getNickname() {
-        return String.valueOf(data.get("name"));
+        return null;
     }
 
     @Override
