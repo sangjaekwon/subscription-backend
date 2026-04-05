@@ -21,7 +21,6 @@ import java.time.LocalDate;
 public class PaymentHistoryService {
 
     private final PaymentHistoryRepository paymentHistoryRepository;
-    private final SubscriptionRepository subscriptionRepository;
     private final UserRepository userRepository;
 
     public PaymentHistroyResponse totalMoney(Long userId, LocalDate date) {

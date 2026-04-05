@@ -77,7 +77,7 @@ public class AuthService {
         return token;
     }
 
-    public void logout(String userId) {
+    public void logout(Long userId) {
         redisTemplate.delete("refresh:" + userId);
         SecurityContextHolder.clearContext();
     }
