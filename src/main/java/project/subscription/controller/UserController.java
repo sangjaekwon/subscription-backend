@@ -2,6 +2,8 @@ package project.subscription.controller;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,9 +28,21 @@ public class UserController {
 
     @Operation(summary = "회원가입 API")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "회원가입 성공"),
-            @ApiResponse(responseCode = "400", description = "입력값 오류, 아이디 중복"),
-            @ApiResponse(responseCode = "401", description = "이메일 인증 검증 실패")
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "회원가입 성공",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "입력값 오류, 비밀번호 확인 불일치, 또는 아이디 중복",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "이메일 인증이 완료되지 않아 회원가입할 수 없습니다.",
+                    content = @Content
+            )
     })
     @PostMapping("/join")
     public ResponseEntity<CommonApiResponse<?>> join(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "아이디 4~12자, 비밀번호 영어+숫자+특수문자를 포함한 6~16자, 이메일은 알림 전송용")
