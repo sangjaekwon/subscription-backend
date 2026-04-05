@@ -139,7 +139,7 @@ class AuthServiceTest {
         authService.login(loginRequest);
         User user = userRepository.findByUsername(joinRequest.getUsername()).get();
 
-        authService.logout(String.valueOf(user.getId()));
+        authService.logout(user.getId());
 
 
         //then
