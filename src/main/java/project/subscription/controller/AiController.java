@@ -1,6 +1,11 @@
 package project.subscription.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.ai.chat.client.ChatClient;
@@ -9,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import project.subscription.aop.annotation.Retry;
 import project.subscription.dto.SubscriptionDto;
 import project.subscription.dto.response.AiResponse;
 import project.subscription.dto.response.CommonApiResponse;
@@ -140,9 +146,79 @@ public class AiController {
     - 반드시 JSON만 반환
     """;
 
-    @Operation(summary = "AI 분석 API")
+    @Retry() // default 3
+    @Operation(
+            summary = "AI 분석 API",
+            description = """
+                    사용자의 현재 구독 목록을 기반으로 소비 성향을 분석합니다.
+                    
+                    내부 AI 호출 실패 시 `@Retry` 정책에 따라 최대 3번까지 재시도합니다.
+                    구독 데이터가 하나도 없으면 분석할 수 없습니다.
+                    """
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "AI 분석 성공",
+                    content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
+                            {
+                              "success": true,
+                              "data": {
+                                "userTypeAnalysis": {
+                                  "title": "실속형 스트리밍 사용자",
+                                  "description": "필요한 서비스만 유지하면서도 콘텐츠 소비 패턴이 뚜렷한 편입니다.",
+                                  "tags": ["실속형", "OTT중심", "정기결제"]
+                                },
+                                "coreInterpretations": [
+                                  {
+                                    "title": "OTT 비중이 높은 구독 구조",
+                                    "description": "콘텐츠 소비 중심 구독이 많아 여가 지출 비중이 높은 편입니다."
+                                  },
+                                  {
+                                    "title": "월 단위 관리가 쉬운 구성",
+                                    "description": "대부분 월간 결제로 구성되어 지출 흐름을 파악하기 쉽습니다."
+                                  },
+                                  {
+                                    "title": "비용 대비 사용성 점검 여지",
+                                    "description": "사용 빈도가 낮은 서비스가 있다면 정리 효과가 바로 드러날 수 있습니다."
+                                  }
+                                ],
+                                "aiInsights": [
+                                  {
+                                    "title": "겹치는 콘텐츠 구독 점검",
+                                    "description": "비슷한 용도의 OTT를 동시에 구독 중이라면 사용 빈도를 기준으로 정리해볼 만합니다."
+                                  },
+                                  {
+                                    "title": "결제일 집중도 확인",
+                                    "description": "결제일이 비슷하게 몰려 있다면 월초나 월말 지출 체감이 커질 수 있어 분산을 고려해볼 수 있습니다."
+                                  }
+                                ],
+                                "oneLineSummary": {
+                                  "summaryTitle": "필요한 만큼만 쓰는 콘텐츠 중심형",
+                                  "summaryDescription": "구독 수는 많지 않지만 사용 목적이 분명해 지출 통제가 비교적 잘 되는 편입니다."
+                                }
+                              }
+                            }
+                            """))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Access 토큰이 없거나 만료되었습니다.",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "분석할 구독 데이터가 없습니다.",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "503",
+                    description = "외부 AI 호출이 반복 실패해 분석을 완료하지 못했습니다.",
+                    content = @Content
+            )
+    })
     @GetMapping
-    public CommonApiResponse<AiResponse> aiResult(@AuthenticationPrincipal(expression = "userId") Long userId) {
+    public CommonApiResponse<AiResponse> aiResult(@Parameter(hidden = true) @AuthenticationPrincipal(expression = "userId") Long userId) {
 
         List<SubscriptionDto> subscriptions = subscriptionService.findSubscriptions(userId);
         if (subscriptions.isEmpty()) throw new SubscriptionNotFoundException();
