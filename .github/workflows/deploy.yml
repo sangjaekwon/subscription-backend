@@ -15,6 +15,16 @@ permissions:
 
 jobs:
   build-and-push:
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+    env:
+      SPRING_PROFILE_ACTIVE: test
+      SPRING_DATA_REDIS_HOST: 127.0.0.1
+      SPRING_DATA_REDIS_PORT: 6379
+      
     runs-on: ubuntu-latest
     environment: production
 
