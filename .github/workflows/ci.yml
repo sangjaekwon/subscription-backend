@@ -1,4 +1,48 @@
-name: ci.yml
+name: ci
+
 on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+    env:
+      SPRING_PROFILE_ACTIVE: test
+      SPRING_DATA_REDIS_HOST: 127.0.0.1
+      SPRING_DATA_REDIS_PORT: 6379
+    steps:
+      - name: 코드 가져오기
+        uses: actions/checkout@v6
+
+      - name: Java 21 설치
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: gradlew 실행 권한 부여
+        run: chmod +x ./gradlew
+
+      - name: 테스트 실행
+        run: ./gradlew clean test
+
+      - name: 테스트 리포트 업로드
+        if: always()  # 안 붙이면 이전에서 실패하면 뒤에가 스킵돼서 로그를 못 본다
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path:
+            build/reports/tests/test
+            build/test-results/test
