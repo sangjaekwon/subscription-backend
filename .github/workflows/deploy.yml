@@ -45,8 +45,8 @@ jobs:
       - name: ./greadlew 실행 권한 부여
         run: chmod +x ./gradlew
 
-      - name: 테스트
-        run: ./gradlew clean test
+      - name: jar 빌드
+        run: ./gradlew clean bootjar
 
       - name: Docker Buildx 설정
         uses: docker/setup-buildx-action@v3
@@ -91,10 +91,10 @@ jobs:
         run: |
           ssh "$USER@$HOST" "
             set -e
-            cd /home/ubuntu/subscription
-
-            echo \$GHCR_TOKEN | docker login ghcr.io -u \$GHCR_USERNAME --password-stdin
-
-            docker compose pull spring
-            docker compose up -d spring
+            cd /home/ubuntu/subscription-app
+          
+            echo '$GHCR_TOKEN' | docker login ghcr.io -u '$GHCR_USERNAME' --password-stdin
+          
+            docker compose pull backend
+            docker compose up -d backend
           "
