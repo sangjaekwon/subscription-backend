@@ -1,3 +1,4 @@
+[![ci](https://github.com/sangjaekwon/subscription-backend/actions/workflows/ci.yml/badge.svg)](https://github.com/sangjaekwon/subscription-backend/actions/workflows/ci.yml) [![deploy](https://github.com/sangjaekwon/subscription-backend/actions/workflows/deploy.yml/badge.svg?event=push)](https://github.com/sangjaekwon/subscription-backend/actions/workflows/deploy.yml)
 # Subscription Backend
 
 구독 서비스의 결제 내역과 갱신 일정을 한곳에서 관리하고,  
