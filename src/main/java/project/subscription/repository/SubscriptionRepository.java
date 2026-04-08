@@ -14,7 +14,11 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 
     List<Subscription> findByUser(User user);
 
-    @Query(value = "SELECT * FROM subscription WHERE FIND_IN_SET(:today, alarm_date) > 0", nativeQuery = true)
+    @Query(value = """
+    SELECT *
+    FROM subscription
+    WHERE LOCATE(CONCAT(',', :today, ','), CONCAT(',', alarm_date, ',')) > 0
+    """, nativeQuery = true)
     List<Subscription> findByAlarmDateContaining(String today);
 
 

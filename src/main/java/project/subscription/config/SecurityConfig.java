@@ -97,8 +97,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/api/auth/reissue", "/api/auth/email/*", "/api/user/join", "/api/auth/login", "/swagger-ui/**",
-                                "/v3/api-docs/**").permitAll().anyRequest().authenticated());
+                        authorize.requestMatchers("/test-auth").authenticated());
         return http.build();
     }
 }

@@ -283,6 +283,9 @@ class SubscriptionServiceTest {
                 BASE_DATE.plusMonths(1).minusDays(2),
                 BASE_DATE.plusMonths(1).minusDays(3))
         ));
+        User user = createUser();
+        user.addSubscription(subscription);
+        user.addSubscription(subscription2);
 
         //when
         subscriptionService.refreshSubscriptionCycle();

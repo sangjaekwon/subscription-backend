@@ -158,7 +158,9 @@ public class SubscriptionService {
 
         for (Subscription sub : ddayList) {
             LocalDate dday = sub.getPaymentCycle().plus(now, sub.getCycleInterval());
-
+            PaymentHistory paymentHistory = new PaymentHistory(sub.getPrice() ,now.getMonthValue());
+            sub.getUser().addPaymentHistory(paymentHistory);
+            sub.addPaymentHistory(paymentHistory);
             List<Integer> alarmList = sub.getAlarm();
             Set<LocalDate> alarmDate = calculateAlarms(alarmList, dday);
 
