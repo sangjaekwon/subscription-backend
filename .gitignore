@@ -6,10 +6,12 @@ build/
 !**/src/test/**/build/
 src/main/resources/application*.yml
 src/main/resources/application*.yaml
+spy.log
+HELP.md
 ### STS ###
 .apt_generated
 .classpath
-.factorypath
+.factorypathq
 .project
 .settings
 .springBeans
