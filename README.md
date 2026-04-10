@@ -99,7 +99,8 @@
 
 ## 4. 아키텍처
 
-<img width="1536" height="1024" alt="시스템 아키텍처 다이어그램" src="https://github.com/user-attachments/assets/ba7fc1f9-b6d7-4305-9e79-66c05755f2ef" />
+<img width="1321" height="735" alt="백엔드 아키텍처" src="https://github.com/user-attachments/assets/18e7884b-9c13-4d09-aca4-dd561ba55363" />
+
 
 
 이 프로젝트는 요청 처리, 인증, 데이터 저장, 외부 연동, 운영 관측을 분리하는 방향으로 구성했습니다.
